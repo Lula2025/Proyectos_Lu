@@ -8,19 +8,25 @@ st.title("📅 Línea de Tiempo de Actividades por Cultivo")
 # Cargar el archivo local
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 
-# Asegurarse de que la fecha esté en formato datetime
-df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
+# Asegurar formato datetime
+df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
+    df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
+)
 
 # Selección del ID de cultivo
-id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
+id_cultivo_seleccionado = st.selectbox(
+    "Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique()
+)
 
-# Filtrar el DataFrame por el ID de cultivo
+# Filtrar el DataFrame
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
-# Ordenar actividades por fecha (más antigua abajo, más reciente arriba)
-orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()
+# Obtener orden cronológico de actividades y luego invertirlo
+orden_actividades = df_filtrado.sort_values(
+    "Fecha_en_que_se_realizó_la_actividad"
+)["Actividad_realizada"].unique()[::-1]
 
-# Crear gráfico de línea de tiempo
+# Crear gráfico
 fig = px.scatter(
     df_filtrado,
     x="Fecha_en_que_se_realizó_la_actividad",
@@ -35,13 +41,18 @@ fig = px.scatter(
     },
 )
 
-# Personalizar el texto de cada punto (pequeño, solo la fecha)
-df_filtrado["TextoEtiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
-fig.update_traces(text=df_filtrado["TextoEtiqueta"], textposition="top center", textfont_size=9, mode="markers+text")
+# Añadir etiquetas pequeñas con la fecha
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+fig.update_traces(
+    text=df_filtrado["Etiqueta"],
+    textposition="top center",
+    textfont_size=9,
+    mode="markers+text"
+)
 
-# Mejorar diseño del gráfico
+# Ajustar diseño
 fig.update_layout(
-    xaxis_title="Fecha (por mes)",
+    xaxis_title="Fecha (mes y año)",
     yaxis_title="Actividad",
     xaxis=dict(tickformat="%b %Y"),
     margin=dict(l=40, r=40, t=80, b=40),
