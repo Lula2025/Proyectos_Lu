@@ -2,56 +2,52 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.title("🗓️ Línea de Tiempo de Actividades por Cultivo")
+# Título de la app
+st.title("📅 Línea de Tiempo de Actividades por Cultivo")
 
-# Cargar el archivo
+# Cargar el archivo local
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 
-# Convertir a datetime y eliminar nulos
-df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
-    df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
-)
-df = df[df['Fecha_en_que_se_realizó_la_actividad'].notna()]
+# Asegurarse de que la fecha esté en formato datetime
+df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
-# Selección de cultivo
-id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].unique())
+# Selección del ID de cultivo
+id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
+
+# Filtrar el DataFrame por el ID de cultivo
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
-# Etiqueta con fecha en texto para mostrar en puntos
-df_filtrado["Etiqueta_Fecha"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+# Ordenar actividades por fecha (más antigua primero)
+orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()[::-1]
 
-# Ordenar las actividades por fecha de aparición
-orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()
-df_filtrado["Actividad_realizada"] = pd.Categorical(
-    df_filtrado["Actividad_realizada"], categories=orden_actividades, ordered=True
-)
-
-# Crear gráfico
+# Crear gráfico de línea de tiempo
 fig = px.scatter(
     df_filtrado,
     x="Fecha_en_que_se_realizó_la_actividad",
     y="Actividad_realizada",
-    hover_name="Actividad_realizada",
-    text="Etiqueta_Fecha",
-    title=f"📌 Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
+    category_orders={"Actividad_realizada": orden_actividades},
+    title=f"🕒 Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
     labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
-    color_discrete_sequence=["#2ca02c"]
+    color_discrete_sequence=["#2ca02c"],
+    hover_data={
+        "Actividad_realizada": False,
+        "Fecha_en_que_se_realizó_la_actividad": True
+    },
 )
 
-# Ajustar diseño de etiquetas
-fig.update_traces(
-    textposition="top center",
-    textfont_size=9
-)
+# Personalizar el texto de cada punto (pequeño, solo la fecha)
+df_filtrado["TextoEtiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+fig.update_traces(text=df_filtrado["TextoEtiqueta"], textposition="top center", textfont_size=9, mode="markers+text")
 
-# Mejorar diseño general
+# Mejorar diseño del gráfico
 fig.update_layout(
-    xaxis_title="Fecha",
-    yaxis_title="Actividad realizada (orden cronológico)",
-    xaxis_tickformat="%b %Y",
+    xaxis_title="Fecha (por mes)",
+    yaxis_title="Actividad",
+    xaxis=dict(tickformat="%b %Y"),
+    yaxis=dict(categoryorder='array', categoryarray=orden_actividades),
     margin=dict(l=40, r=40, t=80, b=40),
-    height=500
+    height=600
 )
 
-# Mostrar gráfico
+# Mostrar el gráfico
 st.plotly_chart(fig, use_container_width=True)
