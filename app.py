@@ -33,7 +33,10 @@ emoji_actividades = {
 }
 
 # Asignar emojis a las actividades solo para el eje Y
-df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")  # Emoji por defecto
+df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades)
+
+# Para las actividades que no tienen un emoji definido, usar un emoji genérico
+df_filtrado["Icono_actividad"] = df_filtrado["Icono_actividad"].fillna("🔄")
 
 # Crear gráfico de dispersión
 fig = px.scatter(
