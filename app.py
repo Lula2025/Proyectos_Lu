@@ -55,7 +55,7 @@ fig.update_layout(
     yaxis=dict(
         tickmode="array",  # Mostrar solo las actividades en el eje Y
         tickvals=orden_actividades,  # Definir el orden de las actividades
-        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],  # Incluir los iconos en el eje Y
+        ticktext=[f"<span style='font-size: 18px;'>{emoji_actividades.get(act, '🔄')} {act}</span>" for act in orden_actividades],  # Aumentar el tamaño de los iconos
     ),
 )
 
