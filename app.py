@@ -32,7 +32,7 @@ emoji_actividades = {
     # Puedes agregar más actividades e iconos según necesites
 }
 
-# Asignar emojis a las actividades
+# Asignar emojis a las actividades solo para el eje Y
 df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")  # Emoji por defecto
 
 # Crear gráfico de dispersión
@@ -50,10 +50,19 @@ fig = px.scatter(
     },
 )
 
-# Agregar iconos de emojis como texto en las etiquetas
-df_filtrado["Etiqueta"] = df_filtrado["Icono_actividad"] + " " + df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+# Agregar iconos a las actividades solo en el eje Y
+fig.update_layout(
+    yaxis=dict(
+        tickmode="array",  # Mostrar solo las actividades en el eje Y
+        tickvals=orden_actividades,  # Definir el orden de las actividades
+        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],  # Incluir los iconos en el eje Y
+    ),
+)
+
+# Agregar las fechas en las etiquetas de los puntos, pero sin iconos
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
 fig.update_traces(
-    text=df_filtrado["Etiqueta"],  # Mostrar fecha con icono
+    text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha
     textposition="top center",
     textfont_size=10,  # Tamaño de fuente pequeño para las fechas
     mode="markers+text",
@@ -68,11 +77,6 @@ fig.update_layout(
         tickformat="%b %Y",  # Mostrar solo mes y año
         tickangle=45,  # Rotar las etiquetas de los meses
         dtick="M1"  # Mostrar un tick cada mes
-    ),
-    yaxis=dict(
-        tickmode="array",  # Mostrar solo las actividades en el eje Y
-        tickvals=orden_actividades,  # Definir el orden de las actividades
-        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],  # Incluir los iconos en el eje Y
     ),
     margin=dict(l=40, r=40, t=80, b=80),  # Márgenes más amplios
     height=600,  # Altura más grande
