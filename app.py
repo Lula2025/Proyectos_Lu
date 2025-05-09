@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
+
 st.title("📅 Línea de Tiempo de Actividades por Cultivo")
 
 # Cargar el archivo local
@@ -45,7 +47,7 @@ df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].d
 fig.update_traces(
     text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha completa
     textposition="top center",
-    textfont_size=9,
+    textfont_size=10,  # Aumentar tamaño de texto para mejor visibilidad
     mode="markers+text"
 )
 
@@ -58,11 +60,16 @@ fig.update_layout(
         tickangle=45,
         dtick="M1"  # Esto asegura que se muestre un mes por tick
     ),
-    margin=dict(l=40, r=40, t=80, b=80),
-    height=600,
-    width=1400
+    margin=dict(l=40, r=40, t=80, b=80),  # Mayor espacio en los márgenes
+    height=600,  # Aumentar altura
+    width=1200,  # Ampliar el ancho del gráfico
+    title_font_size=24,  # Aumentar tamaño del título
+    font=dict(size=12)  # Tamaño de fuente general
 )
 
 # Mostrar el gráfico
-st.plotly_chart(fig, use_container_width=False)
+st.plotly_chart(fig, use_container_width=True)
+
+# Espacio entre el gráfico y otros elementos
+st.markdown("<br>", unsafe_allow_html=True)
 
