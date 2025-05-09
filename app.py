@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 # Cargar datos
-df = pd.read_csv("Hoja 6 2023-2024 a marzo 2025.csv")  # Reemplaza con tu archivo
+df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")  # Reemplaza con tu archivo
 
 # Asegurarse que las fechas estén en formato datetime
 df['Fecha_en_que_se_realizaron_las_actividades'] = pd.to_datetime(df['Fecha_en_que_se_realizaron_las_actividades'])
