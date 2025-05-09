@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Título de la app
 st.title("📅 Línea de Tiempo de Actividades por Cultivo")
 
 # Cargar el archivo local
@@ -50,14 +49,18 @@ fig.update_traces(
     mode="markers+text"
 )
 
-# Ajustar diseño con mayor ancho
+# Ajustar diseño con mayor separación entre meses
 fig.update_layout(
     xaxis_title="Fecha (mes y año)",
     yaxis_title="Actividad",
-    xaxis=dict(tickformat="%b %Y"),
+    xaxis=dict(
+        tickformat="%b %Y",
+        tickangle=0,
+        dtick="M1"  # Mostrar un tick por mes
+    ),
     margin=dict(l=40, r=40, t=80, b=40),
     height=600,
-    width=1000  # Aumentar ancho
+    width=1400  # Mayor ancho para más separación
 )
 
 # Mostrar el gráfico
