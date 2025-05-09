@@ -2,48 +2,66 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.title("Línea de Tiempo de Actividades")
-
-# Leer el archivo directamente desde la misma carpeta
+# Cargar el archivo CSV directamente
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
+df.columns = df.columns.str.strip()
 
-# Convertir a datetime
-df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
-    df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
-)
+# Nombres de las columnas
+col_fecha = "Fecha_en_que_se_realizó_la_actividad"
+col_actividad = "Actividad_realizada"
+col_id = "ID_Cultivo"
 
-# Extraer el mes con nombre (abreviado o completo)
-df['Mes'] = df['Fecha_en_que_se_realizó_la_actividad'].dt.strftime('%b')  # %B para nombre completo
+# Validación de las columnas
+if not all(col in df.columns for col in [col_fecha, col_actividad, col_id]):
+    st.error("El archivo no contiene las columnas necesarias.")
+else:
+    # Convertir la columna de fecha al formato adecuado (mes/día/año)
+    df[col_fecha] = pd.to_datetime(df[col_fecha], format="%m/%d/%Y", errors="coerce")
 
-# Selección del cultivo
-id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].unique())
+    # Verificar si hay fechas no válidas
+    st.write("Fechas no válidas:", df[df[col_fecha].isna()])
 
-# Filtrar datos
-df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado]
+    # Agregar columnas para Mes, Día y Etiqueta
+    df["Mes"] = df[col_fecha].dt.month
+    df["Día"] = df[col_fecha].dt.day
+    df["Nombre_mes"] = df[col_fecha].dt.strftime("%B")
+    df["Etiqueta"] = df[col_actividad] + " - " + df[col_fecha].dt.strftime("%d %b %Y")
 
-# Ordenar por fecha para mejor visualización
-df_filtrado = df_filtrado.sort_values(by="Fecha_en_que_se_realizó_la_actividad")
+    # Selección por ID de Cultivo
+    id_cultivo = st.selectbox("Selecciona un ID de Cultivo", sorted(df[col_id].dropna().unique()))
+    df_filtrado = df[df[col_id] == id_cultivo].copy()
 
-# Gráfico tipo scatter con nombres de mes en el eje X
-fig = px.scatter(
-    df_filtrado,
-    x="Fecha_en_que_se_realizó_la_actividad",
-    y=["Actividad_realizada"],
-    text="Actividad_realizada",
-    title=f"Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
-    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
-    color_discrete_sequence=["#2ca02c"]
-)
+    # Ordenar meses (en español)
+    meses_ordenados = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ]
+    df_filtrado["Nombre_mes"] = df_filtrado[col_fecha].dt.strftime("%B").str.lower()
+    df_filtrado["Nombre_mes"] = pd.Categorical(df_filtrado["Nombre_mes"], categories=meses_ordenados, ordered=True)
 
-# Mostrar etiquetas y configurar diseño
-fig.update_traces(mode="markers+text", textposition="top center")
+    # Crear gráfico de dispersión (scatter plot)
+    fig = px.scatter(
+        df_filtrado,
+        x=col_fecha,  # Usamos la fecha exacta en el eje X
+        y=col_actividad,  # Las actividades en el eje Y
+        color=col_actividad,  # Colores por actividad
+        text="Etiqueta",  # Mostrar la etiqueta (nombre actividad + fecha)
+        title=f"Actividades realizadas por mes - Cultivo {id_cultivo}",
+    )
 
-fig.update_layout(
-    xaxis_title="Fecha",
-    yaxis_title="Actividad",
-    yaxis=dict(showticklabels=False),
-    xaxis_tickformat="%b %Y",  # Mostrar nombre del mes y año
-    margin=dict(l=40, r=40, t=80, b=40)
-)
+    # Ajustar el formato del gráfico
+    fig.update_traces(textposition="top center")
+    fig.update_layout(
+        xaxis_title="Fecha",
+        yaxis_title="Actividad realizada",
+        showlegend=False,
+        height=600,
+        xaxis=dict(
+            tickmode="array",
+            tickvals=pd.date_range(df_filtrado[col_fecha].min(), df_filtrado[col_fecha].max(), freq="5D"),  # Muestra cada 5 días
+            ticktext=[f"{x.strftime('%d %b')}" for x in pd.date_range(df_filtrado[col_fecha].min(), df_filtrado[col_fecha].max(), freq="5D")]
+        )
+    )
 
-st.plotly_chart(fig, use_container_width=True)
+    # Mostrar el gráfico
+    st.plotly_chart(fig, use_container_width=True)
