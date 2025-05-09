@@ -23,6 +23,18 @@ df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 # Ordenar las actividades cronológicamente y luego invertirlas para que las más antiguas estén abajo
 orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()[::-1]
 
+# Diccionario de emojis según la actividad
+emoji_actividades = {
+    "Fertilización": "💼",  # Costalito de fertilizante
+    "Siembra": "🌱",  # Plantita para la siembra
+    "Barbecho": "🧑‍🌾",  # Agricultor trabajando el suelo
+    "Trilla": "🌾",  # Espiga de trigo
+    # Puedes agregar más actividades e iconos según necesites
+}
+
+# Asignar emojis a las actividades
+df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")  # Emoji por defecto
+
 # Crear gráfico de dispersión
 fig = px.scatter(
     df_filtrado,
@@ -39,9 +51,9 @@ fig = px.scatter(
 )
 
 # Agregar iconos de emojis como texto en las etiquetas
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+df_filtrado["Etiqueta"] = df_filtrado["Icono_actividad"] + " " + df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
 fig.update_traces(
-    text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha completa
+    text=df_filtrado["Etiqueta"],  # Mostrar fecha con icono
     textposition="top center",
     textfont_size=10,  # Tamaño de fuente pequeño para las fechas
     mode="markers+text",
