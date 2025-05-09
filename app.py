@@ -50,14 +50,15 @@ fig.update_traces(
     mode="markers+text"
 )
 
-# Ajustar diseño
+# Ajustar diseño con mayor ancho
 fig.update_layout(
     xaxis_title="Fecha (mes y año)",
     yaxis_title="Actividad",
     xaxis=dict(tickformat="%b %Y"),
     margin=dict(l=40, r=40, t=80, b=40),
-    height=600
+    height=600,
+    width=1000  # Aumentar ancho
 )
 
 # Mostrar el gráfico
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=False)
