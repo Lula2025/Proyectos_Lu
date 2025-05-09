@@ -40,27 +40,27 @@ fig = px.scatter(
     },
 )
 
-# Añadir etiquetas pequeñas con la fecha
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+# Etiquetas con solo mes y año
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%b %Y")
 fig.update_traces(
-    text=df_filtrado["Etiqueta"],
+    text=df_filtrado["Actividad_realizada"],  # Mostrar actividad en los puntos
     textposition="top center",
     textfont_size=9,
     mode="markers+text"
 )
 
-# Ajustar diseño para separar más entre meses
+# Ajustar diseño del eje X para mostrar solo mes y año
 fig.update_layout(
-    xaxis_title="Fecha",
+    xaxis_title="Mes y Año",
     yaxis_title="Actividad",
     xaxis=dict(
-        tickformat="%d %b %Y",
+        tickformat="%b %Y",  # Ejemplo: Mar 2024
         tickangle=45,
-        dtick="M1"  # Un tick por mes
+        dtick="M1"  # Esto asegura que se muestre un mes por tick
     ),
     margin=dict(l=40, r=40, t=80, b=80),
     height=600,
-    width=1400  # Mayor separación visual
+    width=1400
 )
 
 # Mostrar el gráfico
