@@ -4,7 +4,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
 
-st.title("📅 Línea de Tiempo de Actividades por Cultivo")
+st.title("📅 Línea de Tiempo de Actividades por ID_Cultivo?/Id_Tipo de parcela")
 
 # Cargar el archivo local
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
