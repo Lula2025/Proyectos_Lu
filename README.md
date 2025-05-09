@@ -1,2 +1,3 @@
-# Proyectos_Lu
-Contiene proyectos Iniciales
+streamlit
+pandas
+ploty
