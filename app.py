@@ -2,54 +2,38 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Cargar datos
-df = pd.read_csv("datos_actividades.csv")
+st.title("Línea de Tiempo de Actividades")
 
-# Verificar columnas
-st.write("Columnas disponibles:", df.columns.tolist())
+archivo = st.file_uploader("Sube el archivo CSV", type="csv")
 
-# Asegurarse que la fecha está bien nombrada
-col_fecha = "Fecha_en_que_se_realizaron_las_actividades"  # Cambia si tiene otro nombre
-col_actividad = "Actividad_realizada"
-col_id = "ID_Cultivo"
+if archivo is not None:
+    df = pd.read_csv(archivo)
 
-# Convertir a datetime
-df[col_fecha] = pd.to_datetime(df[col_fecha])
+    df['Fecha_en_que_se_realizaron_las_actividades'] = pd.to_datetime(
+        df['Fecha_en_que_se_realizaron_las_actividades'])
 
-# Extraer mes (formato nombre de mes)
-df["Mes"] = df[col_fecha].dt.strftime("%B")
-df["Mes_Num"] = df[col_fecha].dt.month  # Para ordenar correctamente
+    id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].unique())
 
-# Crear etiqueta combinada: actividad + fecha
-df["Etiqueta"] = df[col_actividad] + " - " + df[col_fecha].dt.strftime("%d-%b")
+    df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado]
 
-# Selector de cultivo
-id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df[col_id].unique())
+    fig = px.scatter(df_filtrado, 
+                     x="Fecha_en_que_se_realizaron_las_actividades", 
+                     y=["Actividad_realizada"], 
+                     text="Actividad_realizada",
+                     title=f"Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
+                     labels={"Fecha_en_que_se_realizaron_las_actividades": "Fecha"},
+                     color_discrete_sequence=["#2ca02c"])
 
-# Filtrar DataFrame
-df_filtrado = df[df[col_id] == id_cultivo_seleccionado]
+    fig.update_traces(mode="markers+text", textposition="top center")
 
-# Ordenar por mes
-df_filtrado = df_filtrado.sort_values("Mes_Num")
+    fig.update_layout(
+        xaxis_title="Fecha",
+        yaxis_title="Actividad",
+        yaxis=dict(showticklabels=False),
+        margin=dict(l=40, r=40, t=80, b=40)
+    )
 
-# Crear gráfico
-fig = px.scatter(
-    df_filtrado,
-    x="Mes",
-    y=[col_actividad],
-    text="Etiqueta",
-    title=f"Actividades por mes - Cultivo {id_cultivo_seleccionado}",
-    labels={"Mes": "Mes", col_actividad: "Actividad"},
-    color_discrete_sequence=["#1f77b4"]
-)
-
-fig.update_traces(mode="markers+text", textposition="top center")
-fig.update_layout(
-    yaxis=dict(showticklabels=False),  # Oculta etiquetas repetidas
-    margin=dict(l=40, r=40, t=60, b=40),
-    xaxis_categoryorder="array",
-    xaxis_categoryarray=["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
-                         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    st.plotly_chart(fig, use_container_width=True)
 )
 
 st.plotly_chart(fig, use_container_width=True)
