@@ -6,7 +6,7 @@ import plotly.express as px
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")  # Reemplaza con tu archivo
 
 # Asegurarse que las fechas estén en formato datetime
-df['Fecha.en.que.se.realizarón.las.actividades:'] = pd.to_datetime(df['Fecha.en.que.se.realizarón.las.actividades:'])
+df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'])
 
 # Selección interactiva del ID de cultivo
 id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].unique())
@@ -16,11 +16,11 @@ df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado]
 
 # Crear la línea de tiempo
 fig = px.scatter(df_filtrado, 
-                 x="Fecha.en.que.se.realizarón.las.actividades:", 
-                 y=["Actividad.realizada"], 
+                 x="Fecha_en_que_se_realizó_la_actividad", 
+                 y=["Actividad_realizada"], 
                  text="Actividad_realizada",
                  title=f"Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
-                 labels={"Fecha.en.que.se.realizarón.las.actividades:": "Fecha"},
+                 labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
                  color_discrete_sequence=["#2ca02c"])
 
 # Mostrar etiquetas
