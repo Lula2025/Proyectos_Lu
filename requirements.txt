@@ -1,4 +1,12 @@
+# Frameworks principales
 dash
 gunicorn
-pandas  # si usas pandas
-plotly  # si usas gráficas de plotly
+
+# Manipulación de datos
+pandas
+
+# Gráficos interactivos
+plotly
+
+# Generación de PDFs
+fpdf
