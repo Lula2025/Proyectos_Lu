@@ -69,6 +69,11 @@ fig.update_layout(
         tickangle=45,  # Rotar las etiquetas de los meses
         dtick="M1"  # Mostrar un tick cada mes
     ),
+    yaxis=dict(
+        tickmode="array",  # Mostrar solo las actividades en el eje Y
+        tickvals=orden_actividades,  # Definir el orden de las actividades
+        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],  # Incluir los iconos en el eje Y
+    ),
     margin=dict(l=40, r=40, t=80, b=80),  # Márgenes más amplios
     height=600,  # Altura más grande
     width=1200,  # Ancho más grande para una mejor visualización
