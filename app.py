@@ -15,13 +15,18 @@ col_id = "ID_Cultivo"
 if not all(col in df.columns for col in [col_fecha, col_actividad, col_id]):
     st.error("El archivo no contiene las columnas necesarias.")
 else:
-    # Convertir fecha
-    df[col_fecha] = pd.to_datetime(df[col_fecha], errors="coerce")
+    # Convertir fecha con el formato mes/día/año
+    df[col_fecha] = pd.to_datetime(df[col_fecha], format="%m/%d/%Y", errors="coerce")
+    
+    # Verificar si hay fechas no válidas
+    st.write("Fechas no válidas:", df[df[col_fecha].isna()])
+
+    # Agregar columnas para Mes y Etiqueta
     df["Mes"] = df[col_fecha].dt.month
     df["Nombre_mes"] = df[col_fecha].dt.strftime("%B")
     df["Etiqueta"] = df[col_actividad] + " - " + df[col_fecha].dt.strftime("%d %b %Y")
 
-    # Seleccionar cultivo
+    # Selección por ID de Cultivo
     id_cultivo = st.selectbox("Selecciona un ID de Cultivo", sorted(df[col_id].dropna().unique()))
     df_filtrado = df[df[col_id] == id_cultivo].copy()
 
