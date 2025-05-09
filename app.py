@@ -40,10 +40,10 @@ fig = px.scatter(
     },
 )
 
-# Etiquetas con solo mes y año
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%b %Y")
+# Etiquetas con solo la fecha completa
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
 fig.update_traces(
-    text=df_filtrado["Actividad_realizada"],  # Mostrar actividad en los puntos
+    text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha completa
     textposition="top center",
     textfont_size=9,
     mode="markers+text"
