@@ -20,7 +20,7 @@ id_cultivo_seleccionado = st.selectbox(
 # Filtrar el DataFrame
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
-# Obtener orden cronológico de actividades y luego invertirlo
+# Obtener orden cronológico de actividades y luego invertirlo (para que la primera esté abajo)
 orden_actividades = df_filtrado.sort_values(
     "Fecha_en_que_se_realizó_la_actividad"
 )["Actividad_realizada"].unique()[::-1]
@@ -49,19 +49,20 @@ fig.update_traces(
     mode="markers+text"
 )
 
-# Ajustar diseño con mayor separación entre meses
+# Ajustar diseño para separar más entre meses
 fig.update_layout(
-    xaxis_title="Fecha (mes y año)",
+    xaxis_title="Fecha",
     yaxis_title="Actividad",
     xaxis=dict(
-        tickformat="%b %Y",
-        tickangle=0,
-        dtick="M1"  # Mostrar un tick por mes
+        tickformat="%d %b %Y",
+        tickangle=45,
+        dtick="M1"  # Un tick por mes
     ),
-    margin=dict(l=40, r=40, t=80, b=40),
+    margin=dict(l=40, r=40, t=80, b=80),
     height=600,
-    width=1400  # Mayor ancho para más separación
+    width=1400  # Mayor separación visual
 )
 
 # Mostrar el gráfico
 st.plotly_chart(fig, use_container_width=False)
+
