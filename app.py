@@ -2,58 +2,48 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Cargar archivo directamente
+st.title("Línea de Tiempo de Actividades")
+
+# Leer el archivo directamente desde la misma carpeta
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
-df.columns = df.columns.str.strip()
 
-# Nombres de columnas
-col_fecha = "Fecha_en_que_se_realizó_la_actividad"
-col_actividad = "Actividad_realizada"
-col_id = "ID_Cultivo"
+# Convertir a datetime
+df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
+    df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
+)
 
-# Validación de columnas
-if not all(col in df.columns for col in [col_fecha, col_actividad, col_id]):
-    st.error("El archivo no contiene las columnas necesarias.")
-else:
-    # Convertir fecha con el formato mes/día/año
-    df[col_fecha] = pd.to_datetime(df[col_fecha], format="%m/%d/%Y", errors="coerce")
-    
-    # Verificar si hay fechas no válidas
-    st.write("Fechas no válidas:", df[df[col_fecha].isna()])
+# Extraer el mes con nombre (abreviado o completo)
+df['Mes'] = df['Fecha_en_que_se_realizó_la_actividad'].dt.strftime('%b')  # %B para nombre completo
 
-    # Agregar columnas para Mes y Etiqueta
-    df["Mes"] = df[col_fecha].dt.month
-    df["Nombre_mes"] = df[col_fecha].dt.strftime("%B")
-    df["Etiqueta"] = df[col_actividad] + " - " + df[col_fecha].dt.strftime("%d %b %Y")
+# Selección del cultivo
+id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].unique())
 
-    # Selección por ID de Cultivo
-    id_cultivo = st.selectbox("Selecciona un ID de Cultivo", sorted(df[col_id].dropna().unique()))
-    df_filtrado = df[df[col_id] == id_cultivo].copy()
+# Filtrar datos
+df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado]
 
-    # Ordenar meses (en español)
-    meses_ordenados = [
-        "enero", "febrero", "marzo", "abril", "mayo", "junio",
-        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-    ]
-    df_filtrado["Nombre_mes"] = df_filtrado[col_fecha].dt.strftime("%B").str.lower()
-    df_filtrado["Nombre_mes"] = pd.Categorical(df_filtrado["Nombre_mes"], categories=meses_ordenados, ordered=True)
+# Ordenar por fecha para mejor visualización
+df_filtrado = df_filtrado.sort_values(by="Fecha_en_que_se_realizó_la_actividad")
 
-    # Crear gráfico
-    fig = px.scatter(
-        df_filtrado,
-        x="Nombre_mes",
-        y=col_actividad,
-        color=col_actividad,
-        text="Etiqueta",
-        title=f"Actividades realizadas por mes - Cultivo {id_cultivo}",
-    )
+# Gráfico tipo scatter con nombres de mes en el eje X
+fig = px.scatter(
+    df_filtrado,
+    x="Fecha_en_que_se_realizó_la_actividad",
+    y=["Actividad_realizada"],
+    text="Actividad_realizada",
+    title=f"Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
+    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
+    color_discrete_sequence=["#2ca02c"]
+)
 
-    fig.update_traces(textposition="top center")
-    fig.update_layout(
-        xaxis_title="Mes",
-        yaxis_title="Actividad realizada",
-        showlegend=False,
-        height=600
-    )
+# Mostrar etiquetas y configurar diseño
+fig.update_traces(mode="markers+text", textposition="top center")
 
-    st.plotly_chart(fig, use_container_width=True)
+fig.update_layout(
+    xaxis_title="Fecha",
+    yaxis_title="Actividad",
+    yaxis=dict(showticklabels=False),
+    xaxis_tickformat="%b %Y",  # Mostrar nombre del mes y año
+    margin=dict(l=40, r=40, t=80, b=40)
+)
+
+st.plotly_chart(fig, use_container_width=True)
