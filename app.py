@@ -17,8 +17,8 @@ id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cul
 # Filtrar el DataFrame por el ID de cultivo
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
-# Ordenar actividades por fecha (más antigua primero)
-orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()[::-1]
+# Ordenar actividades por fecha (más antigua abajo, más reciente arriba)
+orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()
 
 # Crear gráfico de línea de tiempo
 fig = px.scatter(
@@ -44,7 +44,6 @@ fig.update_layout(
     xaxis_title="Fecha (por mes)",
     yaxis_title="Actividad",
     xaxis=dict(tickformat="%b %Y"),
-    yaxis=dict(categoryorder='array', categoryarray=orden_actividades),
     margin=dict(l=40, r=40, t=80, b=40),
     height=600
 )
