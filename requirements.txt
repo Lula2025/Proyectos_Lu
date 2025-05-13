@@ -10,3 +10,5 @@ plotly
 
 # Generación de PDFs
 fpdf
+
+matplotlib
