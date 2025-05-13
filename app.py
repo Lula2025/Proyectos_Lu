@@ -147,7 +147,7 @@ st.dataframe(df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_activi
 
 ######################
 # Gráfico de pastel por categoría del producto
-st.subheader("🥧 Distribución de Insumos por Categoría")
+st.subheader("🛍️ Distribución de Insumos por Categoría")
 
 fig_pie = px.pie(
     df_insumos_filtrado,
