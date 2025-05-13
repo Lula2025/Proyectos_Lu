@@ -122,11 +122,11 @@ df_insumos_filtrado = df_insumos[df_insumos["ID_Cultivo"] == id_cultivo_seleccio
 columnas_deseadas = [
     "ID_Cultivo",
     "Fecha_en_que_se_realizó_la_actividad",
-    "Categoría del producto",
-    "Nombre del producto aplicado original",
-    "Cantidad de producto aplicado",
+    "Categoría_del_producto",
+    "Nombre_del_producto",
+    "Cantidad",
     "Unidad/ha",
-    "Lugar de aplicación"
+    "Lugar_de_aplicación"
 ]
 
 df_insumos_filtrado = df_insumos_filtrado[columnas_deseadas]
