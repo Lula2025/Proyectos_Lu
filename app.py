@@ -127,6 +127,40 @@ st.plotly_chart(fig, use_container_width=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 
+##############
+
+# Cargar datos de insumos
+df_insumos = pd.read_csv("Insumos_2023_2024_a_marzo_2025.csv")
+
+# Asegurar formato de fecha
+df_insumos["Fecha de aplicación"] = pd.to_datetime(df_insumos["Fecha de aplicación"], errors="coerce")
+
+# Filtrar por ID_Cultivo seleccionado
+insumos_filtrado = df_insumos[df_insumos["ID_Cultivo"] == id_cultivo_seleccionado].copy()
+
+if not insumos_filtrado.empty:
+    st.subheader("📦 Aplicación de Insumos por Fecha")
+    
+    # Ordenar por fecha
+    insumos_filtrado = insumos_filtrado.sort_values("Fecha de aplicación")
+    
+    # Estilizar por dosis aplicada
+    vmin = insumos_filtrado["Cantidad de producto aplicado"].min()
+    vmax = insumos_filtrado["Cantidad de producto aplicado"].max()
+
+    def color_gradient(val):
+        norm = (val - vmin) / (vmax - vmin) if vmax > vmin else 0.5
+        r = int(255 * norm)
+        g = int(255 * (1 - norm))
+        return f'background-color: rgb({r}, {g}, 100)'
+
+    st.dataframe(
+        insumos_filtrado.style.applymap(
+            color_gradient, subset=["Cantidad de producto aplicado"]
+        )
+    )
+else:
+    st.info("No hay registros de insumos para este ID de Cultivo.")
 
 
 
