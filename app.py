@@ -140,7 +140,7 @@ df_insumos_filtrado = df_insumos_filtrado[columnas_deseadas]
 df_insumos_filtrado["Cantidad"] = df_insumos_filtrado["Cantidad"].round(3)
 
 # Formatear la fecha para quitar los segundos
-df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%Y-%m-%d %H:%M")
+df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%Y-%m-%d")
 
 # Mostrar la tabla ordenada
 st.subheader("📋 Aplicación de Insumos por Fecha")
