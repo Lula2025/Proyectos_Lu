@@ -133,16 +133,16 @@ st.markdown("<br>", unsafe_allow_html=True)
 df_insumos = pd.read_csv("Insumos_2023_2024_a_marzo_2025.csv")
 
 # Asegurar formato de fecha
-df_insumos["Fecha de aplicación"] = pd.to_datetime(df_insumos["Fecha de aplicación"], errors="coerce")
+df_insumos["Fecha_en_que_se_realizó_la_actividad"] = pd.to_datetime(df_insumos["Fecha_en_que_se_realizó_la_actividad"], errors="coerce")
 
 # Filtrar por ID_Cultivo seleccionado
 insumos_filtrado = df_insumos[df_insumos["ID_Cultivo"] == id_cultivo_seleccionado].copy()
 
 if not insumos_filtrado.empty:
-    st.subheader("📦 Aplicación de Insumos por Fecha")
+    st.subheader("📦 Fecha_en_que_se_realizó_la_actividad")
     
     # Ordenar por fecha
-    insumos_filtrado = insumos_filtrado.sort_values("Fecha de aplicación")
+    insumos_filtrado = insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")
     
     # Estilizar por dosis aplicada
     vmin = insumos_filtrado["Cantidad de producto aplicado"].min()
