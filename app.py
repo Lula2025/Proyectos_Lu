@@ -134,7 +134,7 @@ df_insumos_filtrado = df_insumos_filtrado[columnas_deseadas]
 # Mostrar la tabla estilizada
 st.subheader("📋 Aplicación de Insumos por Fecha")
 styled_table = df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").style.background_gradient(
-    subset=["Cantidad de producto aplicado"],
+    subset=["Cantidad"],
     cmap="RdYlGn_r"
 )
 
