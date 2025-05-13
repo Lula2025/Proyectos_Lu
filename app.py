@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import timedelta  # Solo si lo necesitas para alguna operación específica
 
 # Configuración de la página de Streamlit
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
@@ -29,11 +30,40 @@ emoji_actividades = {
     "SIEMBRA": "🌱",  # Plantita para la siembra
     "BARBECHO": "🧑‍🌾",  # Agricultor trabajando el suelo
     "TRILLA": "🌾",  # Espiga de trigo
-    # Puedes agregar más actividades e iconos según necesites
 }
 
 # Asignar emojis a las actividades solo para el eje Y
 df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")  # Emoji por defecto
+
+#####
+# Crear la etiqueta de fecha completa
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
+
+# Ordenar por fecha
+df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
+
+# Inicializar la columna con posición de texto
+df_filtrado["Posición_texto"] = "top center"
+
+# Alternar posición si la fecha está muy cerca (por ejemplo, ≤ 2 días de diferencia)
+posiciones = ["top center", "bottom center"]
+ultima_fecha = None
+posicion_actual = 0
+
+for i, row in df_filtrado.iterrows():
+    fecha_actual = row["Fecha_en_que_se_realizó_la_actividad"]
+
+    if ultima_fecha and abs((fecha_actual - ultima_fecha).days) <= 2:
+        # Si está muy cerca de la anterior, alternamos posición
+        posicion_actual = (posicion_actual + 1) % 2
+    else:
+        # Si no está cerca, reiniciamos a "top"
+        posicion_actual = 0
+
+    df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
+    ultima_fecha = fecha_actual
+
+###
 
 # Crear gráfico de dispersión
 fig = px.scatter(
@@ -59,13 +89,10 @@ fig.update_layout(
     ),
 )
 
-# Agregar las fechas en las etiquetas de los puntos, pero sin iconos
-
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
-
+# Agregar las fechas en las etiquetas de los puntos
 fig.update_traces(
     text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha
-    textposition="top center",
+    textposition=df_filtrado["Posición_texto"],
     textfont_size=8,  # Tamaño de fuente pequeño para las fechas
     mode="markers+text",
     marker=dict(size=12, symbol="circle", color="#FF6347")  # Puntos más grandes y coloridos
@@ -93,3 +120,9 @@ st.plotly_chart(fig, use_container_width=True)
 
 # Espacio entre el gráfico y otros elementos
 st.markdown("<br>", unsafe_allow_html=True)
+
+
+
+
+
+
