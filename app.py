@@ -177,23 +177,48 @@ df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + " " + df_
 df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
 
 # Crear gráfico de barras
-fig_barras = px.bar(
-    df_resumen,
-    x="Nombre_del_producto",
-    y="Cantidad",
-    title="📊 Cantidad Total de Insumo Aplicado por Producto",
-    labels={"Cantidad": "Cantidad Total Aplicada", "Nombre_del_producto": "Producto"},
-    color="Cantidad",
-    color_continuous_scale="Blues",
-    text="Etiqueta"  # Mostrar cantidad + unidad en la barra
-)
+import plotly.express as px
 
-fig_barras.update_layout(
-    xaxis_tickangle=-45,
-    height=500,
-    margin=dict(l=20, r=20, t=60, b=100)
-)
+st.subheader("📊 Cantidad Total de Insumo Aplicado por Producto y Unidad")
 
-fig_barras.update_traces(textposition='outside')
+# Obtener las unidades únicas
+unidades = df_insumos_filtrado["Unidad_ha"].dropna().unique()
 
-st.plotly_chart(fig_barras, use_container_width=True)
+# Para cada unidad, crear un gráfico separado
+for unidad in unidades:
+    df_unidad = df_insumos_filtrado[df_insumos_filtrado["Unidad_ha"] == unidad]
+
+    # Agrupar por producto
+    df_resumen = (
+        df_unidad
+        .groupby("Nombre_del_producto", as_index=False)["Cantidad"]
+        .sum()
+    )
+    
+    # Crear etiquetas con la cantidad redondeada y unidad
+    df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + f" {unidad}"
+    
+    # Ordenar por cantidad
+    df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
+
+    # Crear gráfico
+    fig = px.bar(
+        df_resumen,
+        x="Nombre_del_producto",
+        y="Cantidad",
+        title=f"Unidad: {unidad}",
+        labels={"Cantidad": f"Cantidad ({unidad})", "Nombre_del_producto": "Producto"},
+        color="Cantidad",
+        color_continuous_scale="Blues",
+        text="Etiqueta"
+    )
+
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        height=450,
+        margin=dict(l=20, r=20, t=60, b=100)
+    )
+
+    fig.update_traces(textposition="outside")
+
+    st.plotly_chart(fig, use_container_width=True)
