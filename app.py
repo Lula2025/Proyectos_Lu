@@ -161,3 +161,39 @@ fig_pie.update_traces(textinfo='percent+label')
 fig_pie.update_layout(title_font_size=18)
 
 st.plotly_chart(fig_pie, use_container_width=True)
+
+######################################
+# Agrupar por producto y unidad, y sumar la cantidad
+df_resumen = (
+    df_insumos_filtrado
+    .groupby(["Nombre_del_producto", "Unidad_ha"], as_index=False)["Cantidad"]
+    .sum()
+)
+
+# Crear columna de etiquetas con cantidad + unidad
+df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + " " + df_resumen["Unidad_ha"]
+
+# Ordenar por cantidad
+df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
+
+# Crear gráfico de barras
+fig_barras = px.bar(
+    df_resumen,
+    x="Nombre_del_producto",
+    y="Cantidad",
+    title="📊 Cantidad Total de Insumo Aplicado por Producto",
+    labels={"Cantidad": "Cantidad Total Aplicada", "Nombre_del_producto": "Producto"},
+    color="Cantidad",
+    color_continuous_scale="Blues",
+    text="Etiqueta"  # Mostrar cantidad + unidad en la barra
+)
+
+fig_barras.update_layout(
+    xaxis_tickangle=-45,
+    height=500,
+    margin=dict(l=20, r=20, t=60, b=100)
+)
+
+fig_barras.update_traces(textposition='outside')
+
+st.plotly_chart(fig_barras, use_container_width=True)
