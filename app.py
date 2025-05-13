@@ -100,7 +100,7 @@ fig.update_traces(
     textposition=df_filtrado["Posición_texto"],
     textfont_size=8,  # Tamaño de fuente pequeño para las fechas
     mode="markers+text",
-    marker=dict(size=10, symbol="circle", color="#FF6347")  # Puntos más grandes y coloridos
+    marker=dict(size=8, symbol="circle", color="#FF6347")  # Puntos más grandes y coloridos
 )
 
 # Mejorar la presentación del gráfico
