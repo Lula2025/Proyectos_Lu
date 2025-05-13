@@ -25,10 +25,10 @@ orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_activid
 
 # Diccionario de emojis según la actividad
 emoji_actividades = {
-    "Fertilización": "💼",  # Costalito de fertilizante
-    "Siembra": "🌱",  # Plantita para la siembra
-    "Barbecho": "🧑‍🌾",  # Agricultor trabajando el suelo
-    "Trilla": "🌾",  # Espiga de trigo
+    "FERTILIZACION": "💼",  # Costalito de fertilizante
+    "SIEMBRA": "🌱",  # Plantita para la siembra
+    "BARBECHO": "🧑‍🌾",  # Agricultor trabajando el suelo
+    "TRILLA": "🌾",  # Espiga de trigo
     # Puedes agregar más actividades e iconos según necesites
 }
 
