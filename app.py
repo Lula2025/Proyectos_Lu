@@ -33,7 +33,7 @@ emoji_actividades = {
     "SURCOS": "🚜",  # Agricultor trabajando el suelo
     "ESCARDA": "🚜",  # Agricultor trabajando el suelo
     "CONTROL_DE_PLAGAS": "🌿🦗",  # Agricultor trabajando el suelo
-    "TRILLA": "🌽",  # Espiga de trigo
+    "TRILLA": "🌽"  # Espiga de trigo
 }
 
 # Asignar emojis a las actividades solo para el eje Y
