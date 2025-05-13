@@ -144,3 +144,20 @@ df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtra
 st.subheader("📋 Aplicación de Insumos por Fecha")
 st.dataframe(df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad"))
 
+
+######################
+# Gráfico de pastel por categoría del producto
+st.subheader("🥧 Distribución de Insumos por Categoría")
+
+fig_pie = px.pie(
+    df_insumos_filtrado,
+    names="Categoría_del_producto",
+    values="Cantidad",
+    title="Distribución de insumos aplicados por categoría",
+    color_discrete_sequence=px.colors.qualitative.Set3
+)
+
+fig_pie.update_traces(textinfo='percent+label')
+fig_pie.update_layout(title_font_size=18)
+
+st.plotly_chart(fig_pie, use_container_width=True)
