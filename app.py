@@ -112,8 +112,13 @@ st.markdown("<br>", unsafe_allow_html=True)
 # Cargar archivo de insumos
 df_insumos = pd.read_csv("Insumos_2023_2024_a_marzo_2025.csv")
 
+# Mostrar columnas para verificar nombres
+st.write(df_insumos.columns)
+
 # Convertir fechas a datetime
-df_insumos['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df_insumos['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
+df_insumos['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
+    df_insumos['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
+)
 
 # Filtrar por cultivo seleccionado
 df_insumos_filtrado = df_insumos[df_insumos["ID_Cultivo"] == id_cultivo_seleccionado].copy()
@@ -125,22 +130,19 @@ columnas_deseadas = [
     "Categoría_del_producto",
     "Nombre_del_producto",
     "Cantidad",
-    "Unidad/ha",
+    "Unidad_ha",
     "Lugar_de_aplicación"
 ]
 
-# Filtrar las columnas
 df_insumos_filtrado = df_insumos_filtrado[columnas_deseadas]
 
 # Redondear la cantidad a 2 decimales
 df_insumos_filtrado["Cantidad"] = df_insumos_filtrado["Cantidad"].round(2)
 
-# Quitar los segundos de la fecha
+# Formatear la fecha para quitar los segundos
 df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%Y-%m-%d %H:%M")
 
-# Mostrar la tabla sin formato estilizado
+# Mostrar la tabla ordenada
 st.subheader("📋 Aplicación de Insumos por Fecha")
 st.dataframe(df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad"))
-
-st.write(styled_table)
 
