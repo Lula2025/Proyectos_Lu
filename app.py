@@ -112,6 +112,8 @@ st.markdown("<br>", unsafe_allow_html=True)
 # Cargar archivo de insumos
 df_insumos = pd.read_csv("Insumos_2023_2024_a_marzo_2025.csv")
 
+st.write(df_insumos.columns)
+
 # Convertir fechas a datetime
 df_insumos['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df_insumos['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
