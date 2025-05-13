@@ -127,7 +127,7 @@ columnas_deseadas = [
     "Categoría_del_producto",
     "Nombre_del_producto",
     "Cantidad",
-    "Unidad/ha",
+    "Unidad_ha",
     "Lugar_de_aplicación"
 ]
 
