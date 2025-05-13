@@ -60,11 +60,9 @@ fig.update_layout(
 )
 
 # Agregar las fechas en las etiquetas de los puntos, pero sin iconos
-hover_data={
-    "Etiqueta": True,
-    "Fecha_en_que_se_realizó_la_actividad": False,
-    "Actividad_realizada": False
-}
+
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
+
 fig.update_traces(
     text=df_filtrado["Etiqueta"],  # Mostrar solo la fecha
     textposition="top center",
