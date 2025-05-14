@@ -167,6 +167,20 @@ st.dataframe(
 
 
 ######################
+# Lista de categorías posibles (ajusta con las tuyas si es necesario)
+categorias_colores = {
+    "FERTILIZANTE": "#66c2a5",
+    "HERBICIDA": "#fc8d62",
+    "FUNGICIDA": "#8da0cb",
+    "INSECTICIDA": "#e78ac3",
+    "ADITIVO": "#a6d854",
+    "BACTERICIDA": "#ffd92f",
+    "MEJORADOR_DE_SUELO": "#FF6347",
+    "Otro": "#e5c494"
+}
+
+
+
 # Gráfico de pastel por categoría del producto
 st.subheader("🛍️ Distribución de Insumos por Categoría")
 
@@ -175,7 +189,7 @@ fig_pie = px.pie(
     names="Categoría_del_producto",
     values="Cantidad",
     title=" ",
-    color_discrete_sequence=px.colors.qualitative.Set3
+    color_discrete_map=categorias_colores
 )
 
 fig_pie.update_traces(textinfo='percent+label')
@@ -231,6 +245,7 @@ for unidad in unidades:
         x="Nombre_del_producto",
         y="Cantidad",
         color="Categoría_del_producto",
+        color_discrete_map=categorias_colores,  # <<<<< Aquí se mantiene el color fijo
         text="Etiqueta",
         labels={
             "Cantidad": f"Cantidad ({unidad})",
