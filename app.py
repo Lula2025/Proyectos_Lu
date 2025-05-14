@@ -8,7 +8,7 @@ st.markdown("""
     <style>
         /* Modificar los márgenes de la página */
         .main {
-            margin: 40px;  /* Ajustar el valor para mayor o menor margen */
+            margin: 30px;  /* Ajustar el valor para mayor o menor margen */
         }
 
         /* Espacio entre las gráficas y otros elementos */
