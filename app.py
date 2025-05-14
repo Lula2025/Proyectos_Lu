@@ -22,7 +22,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Título de la aplicación con un emoji de calendario
-st.title("Actividades por Cultivo")
+st.title("Actividades por Parcela/ ID_Cultivo")
 
 # Cargar el archivo CSV de actividades
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
