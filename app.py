@@ -187,6 +187,7 @@ fig_pie = px.pie(
     names="Categoría_del_producto",
     values="Cantidad",
     title="Distribución de Insumos por Categoría",
+    color="Categoría_del_producto",  # ← ¡Este es el que faltaba!
     color_discrete_map=categorias_colores
 )
 
