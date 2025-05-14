@@ -141,7 +141,7 @@ df_insumos_filtrado["Cantidad"] = df_insumos_filtrado["Cantidad"].round(3)
 df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%Y-%m-%d")
 
 # Mostrar la tabla ordenada
-st.subheader("📋 Aplicación de Insumos por Fecha")
+st.subheader("📋 Dosis de Aplicación de Insumos")
 st.dataframe(df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad"))
 
 
@@ -153,7 +153,7 @@ fig_pie = px.pie(
     df_insumos_filtrado,
     names="Categoría_del_producto",
     values="Cantidad",
-    title="Distribución de insumos aplicados por categoría",
+    title="",
     color_discrete_sequence=px.colors.qualitative.Set3
 )
 
