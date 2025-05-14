@@ -203,7 +203,7 @@ df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
 # Crear gráfico de barras
 import plotly.express as px
 
-st.subheader("📊 Cantidad de Insumo Aplicado por Producto")
+st.subheader("📊 Cantidad Total de Insumos Aplicados")
 
 # Obtener las unidades únicas
 unidades = df_insumos_filtrado["Unidad_ha"].dropna().unique()
