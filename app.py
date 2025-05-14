@@ -112,7 +112,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 # Cargar archivo de insumos
 df_insumos = pd.read_csv("Insumos_2023_2024_a_marzo_2025.csv")
 
-
 # Convertir fechas a datetime
 df_insumos['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(
     df_insumos['Fecha_en_que_se_realizó_la_actividad'], errors='coerce'
@@ -135,15 +134,29 @@ columnas_deseadas = [
 df_insumos_filtrado = df_insumos_filtrado[columnas_deseadas]
 
 # Redondear la cantidad a 2 decimales
-df_insumos_filtrado["Cantidad"] = df_insumos_filtrado["Cantidad"].round(3)
+df_insumos_filtrado["Cantidad"] = df_insumos_filtrado["Cantidad"].round(2)
 
-# Formatear la fecha para quitar los segundos
-df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%Y-%m-%d")
+# Formatear la fecha y renombrar la columna
+df_insumos_filtrado["Fecha_en_que_se_realizó_la_actividad"] = df_insumos_filtrado[
+    "Fecha_en_que_se_realizó_la_actividad"
+].dt.strftime("%Y-%m-%d")
 
-# Mostrar la tabla ordenada
-st.subheader("📋 Dosis de Aplicación de Insumos")
-st.dataframe(df_insumos_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad"))
+# Renombrar la columna de fecha
+df_insumos_filtrado = df_insumos_filtrado.rename(columns={
+    "Fecha_en_que_se_realizó_la_actividad": "Fecha_de_aplicación"
+})
 
+# Ocultar las columnas "ID_Cultivo" y "Categoría_del_producto"
+columnas_a_mostrar = [
+    "Fecha_de_aplicación",
+    "Nombre_del_producto",
+    "Cantidad",
+    "Unidad_ha",
+    "Lugar_de_aplicación"
+]
+
+st.subheader("📋 Detalle de Aplicación de Insumos")
+st.dataframe(df_insumos_filtrado[columnas_a_mostrar].sort_values("Fecha_de_aplicación"))
 
 ######################
 # Gráfico de pastel por categoría del producto
