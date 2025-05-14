@@ -37,24 +37,6 @@ id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cul
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
 
-# 🔽 AGREGAR AQUÍ: Información del cultivo seleccionado
-if not df_filtrado.empty:
-
-    estado = df_filtrado["Estado"].iloc[0]
-    anio = df_filtrado["Anio"].iloc[0]
-    ciclo = df_filtrado["ciclo"].iloc[0]
-    regimen = df_filtrado["Regimen"].iloc[0]
-    tipo_superficie = df_filtrado["Tipo_superficie"].iloc[0]
-
-    st.markdown("### 🧾 Información del Cultivo Seleccionado")
-    st.markdown(f"""
-    
-    - **Estado:** {estado}  
-    - **Año:** {anio}  
-    - **Ciclo:** {ciclo}  
-    - **Régimen hídrico:** {regimen}  
-    - **Tipo de superficie:** {tipo_superficie}
-    """)
 
 
 
