@@ -7,7 +7,7 @@ from datetime import timedelta  # Solo si lo necesitas para alguna operación es
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
 
 # Título de la aplicación con un emoji de calendario
-st.title("📅 Línea de Tiempo de Actividades por Cultivo")
+st.title("Actividades por Cultivo")
 
 # Cargar el archivo CSV de actividades
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
@@ -67,7 +67,7 @@ fig = px.scatter(
     x="Fecha_en_que_se_realizó_la_actividad",
     y="Actividad_realizada",
     category_orders={"Actividad_realizada": orden_actividades},
-    title=f"🕒 Actividades realizadas en el cultivo {id_cultivo_seleccionado}",
+    title=f"🕒 Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
     labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
     color_discrete_sequence=["#FF6347"],
     hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
