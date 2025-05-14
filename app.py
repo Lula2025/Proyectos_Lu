@@ -11,12 +11,12 @@ st.markdown("""
     <style>
         /* Modificar los márgenes de la página */
         .main {
-            margin: 40px;  /* Ajustar el valor para mayor o menor margen */
+            margin: 50px;  /* Ajustar el valor para mayor o menor margen */
         }
 
         /* Espacio entre las gráficas y otros elementos */
         .css-1d391kg {
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
     </style>
 """, unsafe_allow_html=True)
