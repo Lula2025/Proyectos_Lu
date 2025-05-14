@@ -3,6 +3,9 @@ import pandas as pd
 import plotly.express as px
 from datetime import timedelta  # Solo si lo necesitas para alguna operación específica
 
+# Configuración de la página de Streamlit (debe ir al principio)
+st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
+
 # Agregar márgenes a toda la página con CSS
 st.markdown("""
     <style>
@@ -17,10 +20,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
-
-# Configuración de la página de Streamlit
-st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
 
 # Título de la aplicación con un emoji de calendario
 st.title("Actividades por Cultivo")
