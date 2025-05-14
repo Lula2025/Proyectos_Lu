@@ -31,12 +31,10 @@ df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
 # Selección del ID de cultivo con un selectbox
-id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
+id_cultivo_seleccionado = st.selectbox(" 👁️ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
 
 # Filtrar los datos por el ID de cultivo seleccionado
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
-
-
 
 
 
