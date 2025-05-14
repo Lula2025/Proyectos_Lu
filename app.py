@@ -3,6 +3,22 @@ import pandas as pd
 import plotly.express as px
 from datetime import timedelta  # Solo si lo necesitas para alguna operación específica
 
+# Agregar márgenes a toda la página con CSS
+st.markdown("""
+    <style>
+        /* Modificar los márgenes de la página */
+        .main {
+            margin: 30px;  /* Ajustar el valor para mayor o menor margen */
+        }
+
+        /* Espacio entre las gráficas y otros elementos */
+        .css-1d391kg {
+            margin-bottom: 50px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # Configuración de la página de Streamlit
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
 
