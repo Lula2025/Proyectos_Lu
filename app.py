@@ -237,7 +237,7 @@ for unidad in unidades:
             "Nombre_del_producto": "Producto",
             "Categoría_del_producto": "Categoría"
         },
-        title=f"Unidad: {unidad} — Agrupado por Categoría"
+        title=f"Unidad: {unidad}"
     )
 
     fig.update_layout(
