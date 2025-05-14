@@ -36,6 +36,29 @@ id_cultivo_seleccionado = st.selectbox("Selecciona un ID de Cultivo", df['ID_Cul
 # Filtrar los datos por el ID de cultivo seleccionado
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
+
+# 🔽 AGREGAR AQUÍ: Información del cultivo seleccionado
+if not df_filtrado.empty:
+    tipo_parcela = df_filtrado["Tipo_parcela"].iloc[0]
+    estado = df_filtrado["Estado"].iloc[0]
+    anio = df_filtrado["Año"].iloc[0]
+    ciclo = df_filtrado["Ciclo"].iloc[0]
+    regimen = df_filtrado["Régimen_hídrico"].iloc[0]
+    tipo_superficie = df_filtrado["Tipo_superficie"].iloc[0]
+
+    st.markdown("### 🧾 Información del Cultivo Seleccionado")
+    st.markdown(f"""
+    - **Tipo de parcela:** {tipo_parcela}  
+    - **Estado:** {estado}  
+    - **Año:** {anio}  
+    - **Ciclo:** {ciclo}  
+    - **Régimen hídrico:** {regimen}  
+    - **Tipo de superficie:** {tipo_superficie}
+    """)
+
+
+
+
 # Ordenar las actividades cronológicamente y luego invertirlas para que las más antiguas estén abajo
 orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()[::-1]
 
