@@ -157,7 +157,9 @@ columnas_a_mostrar = [
 
 st.subheader("📋 Detalle de Aplicación de Insumos")
 st.dataframe(df_insumos_filtrado[columnas_a_mostrar].sort_values("Fecha_de_aplicación"))
-
+    use_container_width=True,
+    hide_index=True
+)
 ######################
 # Gráfico de pastel por categoría del producto
 st.subheader("🛍️ Distribución de Insumos por Categoría")
