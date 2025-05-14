@@ -179,8 +179,6 @@ categorias_colores = {
     "Otro": "#e5c494"
 }
 
-
-
 # Gráfico de pastel por categoría del producto
 st.subheader("🛍️ Distribución de Insumos por Categoría")
 
@@ -188,13 +186,25 @@ fig_pie = px.pie(
     df_insumos_filtrado,
     names="Categoría_del_producto",
     values="Cantidad",
-    title=" ",
-    color="Categoría_del_producto",  # ← ¡Este es el que faltaba!
+    title="Distribución de Insumos por Categoría",
     color_discrete_map=categorias_colores
 )
 
-fig_pie.update_traces(textinfo='percent+label')
-fig_pie.update_layout(title_font_size=18)
+fig_pie.update_traces(
+    textinfo='percent+label',
+    pull=0.02,  # Separar levemente las secciones
+    marker=dict(line=dict(color='#000000', width=1))  # Borde negro
+)
+
+fig_pie.update_layout(
+    template="plotly_white",  # Estilo limpio
+    height=500,
+    margin=dict(t=50, b=50, l=50, r=50),
+    legend=dict(
+        bordercolor="gray",
+        borderwidth=1
+    )
+)
 
 st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -211,9 +221,6 @@ df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + " " + df_
 
 # Ordenar por cantidad
 df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
-
-
-
 
 # Crear gráfico de barras
 import plotly.express as px
@@ -246,7 +253,7 @@ for unidad in unidades:
         x="Nombre_del_producto",
         y="Cantidad",
         color="Categoría_del_producto",
-        color_discrete_map=categorias_colores,  # <<<<< Aquí se mantiene el color fijo
+        color_discrete_map=categorias_colores,  # Colores fijos por categoría
         text="Etiqueta",
         labels={
             "Cantidad": f"Cantidad ({unidad})",
@@ -257,11 +264,33 @@ for unidad in unidades:
     )
 
     fig.update_layout(
+        template="plotly_white",  # Estilo limpio
         xaxis_tickangle=-45,
         height=500,
-        margin=dict(l=20, r=20, t=60, b=100)
+        margin=dict(l=40, r=40, t=60, b=100),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        legend=dict(
+            bordercolor="gray",
+            borderwidth=1
+        ),
+        xaxis=dict(
+            showline=True,
+            linewidth=1,
+            linecolor='gray'
+        ),
+        yaxis=dict(
+            showline=True,
+            linewidth=1,
+            linecolor='gray',
+            gridcolor='lightgray'
+        )
     )
 
-    fig.update_traces(textposition="outside")
+    fig.update_traces(
+        textposition="outside",
+        marker_line_width=1,
+        marker_line_color='black'  # Borde en las barras
+    )
 
     st.plotly_chart(fig, use_container_width=True)
