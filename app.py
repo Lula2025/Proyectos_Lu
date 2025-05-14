@@ -155,11 +155,17 @@ columnas_a_mostrar = [
     "Lugar_de_aplicación"
 ]
 
+# Resetear el índice para evitar que se muestre como columna
+df_insumos_filtrado = df_insumos_filtrado.reset_index(drop=True)
+
+# Mostrar la tabla ordenada sin el índice original
 st.subheader("📋 Detalle de Aplicación de Insumos")
-st.dataframe(df_insumos_filtrado[columnas_a_mostrar].sort_values("Fecha_de_aplicación"))
-    use_container_width=True,
-    hide_index=True
+st.dataframe(
+    df_insumos_filtrado.sort_values("Fecha_de_aplicación"),
+    use_container_width=True
 )
+
+
 ######################
 # Gráfico de pastel por categoría del producto
 st.subheader("🛍️ Distribución de Insumos por Categoría")
