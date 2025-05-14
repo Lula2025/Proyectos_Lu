@@ -39,7 +39,7 @@ df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 
 # 🔽 AGREGAR AQUÍ: Información del cultivo seleccionado
 if not df_filtrado.empty:
-    tipo_parcela = df_filtrado["Tipo_parcela"].iloc[0]
+
     estado = df_filtrado["Estado"].iloc[0]
     anio = df_filtrado["Anio"].iloc[0]
     ciclo = df_filtrado["ciclo"].iloc[0]
@@ -48,7 +48,7 @@ if not df_filtrado.empty:
 
     st.markdown("### 🧾 Información del Cultivo Seleccionado")
     st.markdown(f"""
-    - **Tipo de parcela:** {tipo_parcela}  
+    
     - **Estado:** {estado}  
     - **Año:** {anio}  
     - **Ciclo:** {ciclo}  
