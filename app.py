@@ -204,7 +204,7 @@ fig_pie = px.pie(
     df_insumos_filtrado,
     names="Categoría_del_producto",
     values="Cantidad",
-    title="Distribución de Insumos por Categoría",
+    title=" ",
      color="Categoría_del_producto",  # ← ¡!
     color_discrete_map=categorias_colores
 )
