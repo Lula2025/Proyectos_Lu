@@ -197,46 +197,52 @@ df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + " " + df_
 # Ordenar por cantidad
 df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
 
+
+
+
 # Crear gráfico de barras
 import plotly.express as px
 
-st.subheader("📊 Cantidad Total de Insumo Aplicado por Producto y Unidad")
+st.subheader("📊 Cantidad de Insumo Aplicado por Producto")
 
 # Obtener las unidades únicas
 unidades = df_insumos_filtrado["Unidad_ha"].dropna().unique()
 
-# Para cada unidad, crear un gráfico separado
+# Crear un gráfico para cada unidad
 for unidad in unidades:
     df_unidad = df_insumos_filtrado[df_insumos_filtrado["Unidad_ha"] == unidad]
 
-    # Agrupar por producto
+    # Agrupar por producto y categoría
     df_resumen = (
         df_unidad
-        .groupby("Nombre_del_producto", as_index=False)["Cantidad"]
+        .groupby(["Nombre_del_producto", "Categoría_del_producto"], as_index=False)["Cantidad"]
         .sum()
     )
     
-    # Crear etiquetas con la cantidad redondeada y unidad
+    # Crear etiqueta con cantidad y unidad
     df_resumen["Etiqueta"] = df_resumen["Cantidad"].round(2).astype(str) + f" {unidad}"
-    
-    # Ordenar por cantidad
-    df_resumen = df_resumen.sort_values(by="Cantidad", ascending=False)
+
+    # Ordenar por categoría y luego nombre
+    df_resumen = df_resumen.sort_values(by=["Categoría_del_producto", "Nombre_del_producto"])
 
     # Crear gráfico
     fig = px.bar(
         df_resumen,
         x="Nombre_del_producto",
         y="Cantidad",
-        title=f"Unidad: {unidad}",
-        labels={"Cantidad": f"Cantidad ({unidad})", "Nombre_del_producto": "Producto"},
-        color="Cantidad",
-        color_continuous_scale="Blues",
-        text="Etiqueta"
+        color="Categoría_del_producto",
+        text="Etiqueta",
+        labels={
+            "Cantidad": f"Cantidad ({unidad})",
+            "Nombre_del_producto": "Producto",
+            "Categoría_del_producto": "Categoría"
+        },
+        title=f"Unidad: {unidad} — Agrupado por Categoría"
     )
 
     fig.update_layout(
         xaxis_tickangle=-45,
-        height=450,
+        height=500,
         margin=dict(l=20, r=20, t=60, b=100)
     )
 
