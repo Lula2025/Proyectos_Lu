@@ -153,7 +153,7 @@ fig_pie = px.pie(
     df_insumos_filtrado,
     names="Categoría_del_producto",
     values="Cantidad",
-    title="",
+    title=" ",
     color_discrete_sequence=px.colors.qualitative.Set3
 )
 
