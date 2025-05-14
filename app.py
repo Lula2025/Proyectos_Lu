@@ -187,7 +187,6 @@ fig_pie = px.pie(
     names="Categoría_del_producto",
     values="Cantidad",
     title="Distribución de Insumos por Categoría",
-    color="Categoría_del_producto",  # ← ¡Este es el que faltaba!
     color_discrete_map=categorias_colores
 )
 
@@ -200,7 +199,7 @@ fig_pie.update_traces(
 fig_pie.update_layout(
     template="plotly_white",  # Estilo limpio
     height=500,
-    margin=dict(t=50, b=50, l=50, r=50),
+    margin=dict(t=50, b=50, l=50, r=50),  # Márgenes adicionales
     legend=dict(
         bordercolor="gray",
         borderwidth=1
@@ -208,6 +207,9 @@ fig_pie.update_layout(
 )
 
 st.plotly_chart(fig_pie, use_container_width=True)
+
+# Separador visual para mayor espacio entre gráficas
+st.write("<hr>", unsafe_allow_html=True)
 
 ######################################
 # Agrupar por producto y unidad, y sumar la cantidad
@@ -268,7 +270,7 @@ for unidad in unidades:
         template="plotly_white",  # Estilo limpio
         xaxis_tickangle=-45,
         height=500,
-        margin=dict(l=40, r=40, t=60, b=100),
+        margin=dict(l=40, r=40, t=60, b=100),  # Márgenes ajustados
         plot_bgcolor='white',
         paper_bgcolor='white',
         legend=dict(
@@ -294,4 +296,6 @@ for unidad in unidades:
         marker_line_color='black'  # Borde en las barras
     )
 
+    # Añadir un separador visual entre los gráficos
     st.plotly_chart(fig, use_container_width=True)
+    st.write("<hr>", unsafe_allow_html=True)
