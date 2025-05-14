@@ -11,7 +11,7 @@ st.markdown("""
     <style>
         /* Modificar los márgenes de la página */
         .main {
-            margin: 50px;  /* Ajustar el valor para mayor o menor margen */
+            margin: 50px 150px;  /* 50px arriba y abajo, 150px a la izquierda y derecha */
         }
 
         /* Espacio entre las gráficas y otros elementos */
