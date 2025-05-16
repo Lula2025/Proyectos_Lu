@@ -213,86 +213,70 @@ colores_actividad = {
 }
 
 
-# --------- TERCERA GRÁFICA: Infografía tipo tabla horizontal ---------
+# --------- TERCERA GRÁFICA: Tabla Horizontal por Fecha ---------
 st.markdown("---")
-st.subheader("📊 Infografía Horizontal por Fecha (Tipo Tabla)")
+st.subheader("📅 Tabla Horizontal por Fecha (Tipo Infografía)")
 
-# Obtener fechas únicas ordenadas ascendentemente
-fechas_unicas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values().unique()
+# Obtener fechas únicas en orden cronológico
+fechas_ordenadas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values().unique()
+fechas_str = [pd.to_datetime(f).strftime("%d %b %Y") for f in fechas_ordenadas]
 
-# CSS para la tabla horizontal
+# Agrupar actividades por fecha
+actividades_por_fecha = {
+    pd.to_datetime(fecha).strftime("%d %b %Y"): [
+        f"{emoji_actividades.get(row['Actividad_realizada'], '🔄')} {row['Actividad_realizada'].replace('_', ' ').title()}"
+        for _, row in df_filtrado[df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha].iterrows()
+    ]
+    for fecha in fechas_ordenadas
+}
+
+# Determinar el número máximo de actividades en un día
+max_actividades = max(len(act_list) for act_list in actividades_por_fecha.values())
+
+# Construir estructura de tabla con filas iguales
+tabla_datos = {}
+for fecha in fechas_str:
+    actividades = actividades_por_fecha.get(fecha, [])
+    actividades += [""] * (max_actividades - len(actividades))  # rellenar con vacíos
+    tabla_datos[fecha] = actividades
+
+df_tabla = pd.DataFrame(tabla_datos)
+
+# Estilo con HTML y CSS para simular infografía
 st.markdown("""
 <style>
-.horizontal-timeline {
+.infografia-tabla {
     overflow-x: auto;
-    padding-bottom: 20px;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
-.timeline-table {
-    display: flex;
-    gap: 20px;
-}
-.timeline-column {
-    display: flex;
-    flex-direction: column;
-    min-width: 180px;
-    background-color: #f4f4f4;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-}
-.timeline-header {
-    font-weight: bold;
-    text-align: center;
-    background-color: #8BC34A;
+.infografia-tabla th {
+    background-color: #4CAF50;
     color: white;
     padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-}
-.timeline-actividad {
-    background-color: #fff;
-    border-left: 6px solid #ccc;
-    padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    font-size: 13px;
     text-align: center;
 }
-.timeline-actividad .icono {
-    font-size: 18px;
-    display: block;
-    margin-bottom: 2px;
+.infografia-tabla td {
+    background-color: #f9f9f9;
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Renderizar tabla horizontal
-st.markdown('<div class="horizontal-timeline"><div class="timeline-table">', unsafe_allow_html=True)
+# Mostrar tabla
+st.markdown('<table class="infografia-tabla">', unsafe_allow_html=True)
 
-for fecha in fechas_unicas:
-    actividades_dia = df_filtrado[
-        df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha
-    ]
-    fecha_str = pd.to_datetime(fecha).strftime("%d %b %Y")
+# Encabezado con fechas
+st.markdown("<tr>" + "".join([f"<th>{fecha}</th>" for fecha in df_tabla.columns]) + "</tr>", unsafe_allow_html=True)
 
-    st.markdown(f'<div class="timeline-column"><div class="timeline-header">{fecha_str}</div>', unsafe_allow_html=True)
+# Filas con actividades
+for i in range(max_actividades):
+    st.markdown("<tr>" + "".join([f"<td>{df_tabla.iloc[i, j]}</td>" for j in range(len(df_tabla.columns))]) + "</tr>", unsafe_allow_html=True)
 
-    for _, row in actividades_dia.iterrows():
-        actividad = row["Actividad_realizada"]
-        emoji = emoji_actividades.get(actividad, "🔄")
-        nombre = actividad.replace("_", " ").title()
-        color = colores_actividad.get(actividad, "#ccc")
-
-        st.markdown(f'''
-            <div class="timeline-actividad" style="border-left-color: {color};">
-                <span class="icono">{emoji}</span>{nombre}
-            </div>
-        ''', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)  # Cierra timeline-column
-
-st.markdown('</div></div>', unsafe_allow_html=True)  # Cierra timeline-table y wrapper
-
+st.markdown('</table>', unsafe_allow_html=True)
 
 # ----------------------------
 # TABLA DE INSUMOS
