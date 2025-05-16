@@ -4,10 +4,10 @@ from datetime import datetime
 import plotly.express as px
 
 # Configuración inicial
-st.set_page_config(page_title="🪜 Escalera de Actividades", layout="wide")
-st.title("🪜 Escalera de Actividades Agrícolas")
+st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
+st.title("Actividades por Parcela / ID_Cultivo")
 
-# Cargar datos
+# Cargar el archivo
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
@@ -24,100 +24,184 @@ emoji_actividades = {
     "TRILLA": "🌽"
 }
 
-# Filtro por ID_Cultivo
+# Selección de cultivo
 id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
+df_filtrado['Emoji'] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
 
-# Preparar columnas necesarias
-df_filtrado["Emoji"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
+# --------- PRIMERA GRÁFICA: Plotly timeline ---------
 
-# Alternar la posición en escalera (arriba/abajo)
-df_filtrado["Escalon"] = df_filtrado.index % 2
+orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
+df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
 
-# Dibujar escalera
+# Alternar posiciones de texto
+df_filtrado["Posición_texto"] = "top center"
+posiciones = ["top center", "bottom center"]
+ultima_fecha = None
+posicion_actual = 0
+
+for i, row in df_filtrado.iterrows():
+    fecha_actual = row["Fecha_en_que_se_realizó_la_actividad"]
+    if ultima_fecha and abs((fecha_actual - ultima_fecha).days) <= 2:
+        posicion_actual = (posicion_actual + 1) % 2
+    else:
+        posicion_actual = 0
+    df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
+    ultima_fecha = fecha_actual
+
+fig = px.scatter(
+    df_filtrado,
+    x="Fecha_en_que_se_realizó_la_actividad",
+    y="Actividad_realizada",
+    category_orders={"Actividad_realizada": orden_actividades},
+    title=f"🗓️ Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
+    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
+    color_discrete_sequence=["#FF6347"],
+    hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
+)
+
+fig.update_layout(
+    yaxis=dict(
+        tickmode="array",
+        tickvals=orden_actividades,
+        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],
+    ),
+    xaxis_title="Mes y Año",
+    yaxis_title="Actividad",
+    xaxis=dict(
+        tickformat="%b %Y",
+        tickangle=45,
+        dtick="M1"
+    ),
+    margin=dict(l=40, r=40, t=80, b=80),
+    height=600,
+    width=1200,
+    title_font_size=24,
+    font=dict(size=12, family="Arial, sans-serif"),
+    plot_bgcolor="#F9F9F9"
+)
+
+fig.update_traces(
+    text=df_filtrado["Etiqueta"],
+    textposition=df_filtrado["Posición_texto"],
+    textfont_size=8,
+    mode="markers+text",
+    marker=dict(size=8, symbol="circle", color="#FF6347")
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# --------- SEGUNDA GRÁFICA: Línea de tiempo alterna con tarjetas ---------
 st.markdown("---")
-st.subheader("🪜 Escalera de Actividades")
+st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Conectores)")
 
-# CSS personalizado para la escalera
+# CSS con línea vertical tronco visible y líneas horizontales conectores
 st.markdown("""
 <style>
-.escalera-container {
+.timeline-wrapper {
+    position: relative;
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-bottom: 40px;
+}
+.timeline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background-color: #FF6347;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+.timeline-row {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    margin-bottom: 20px;
     position: relative;
-    margin: 0 auto;
-    width: 90%;
+    z-index: 1;
 }
-.peldaño {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 30px;
-    position: relative;
-}
-.actividad {
-    background-color: #e8f5e9;
-    border-radius: 10px;
-    padding: 10px 14px;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+.timeline-left, .timeline-right {
+    width: 180px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 14px;
-    font-weight: bold;
-    min-width: 150px;
+    display: flex;
+    align-items: center;
 }
-.fecha {
-    font-size: 13px;
-    color: #666;
-    padding: 8px;
+.timeline-left {
+    justify-content: flex-end;
+    text-align: right;
+    margin-right: 40px;
+    position: relative;
 }
-.linea-conector {
+.timeline-right {
+    justify-content: flex-start;
+    text-align: left;
+    margin-left: 40px;
+    position: relative;
+}
+/* Línea horizontal conectora */
+.timeline-left::after, .timeline-right::before {
+    content: "";
     position: absolute;
     top: 50%;
-    width: 100%;
+    width: 40px;
     height: 2px;
-    background-color: #ccc;
+    background-color: #d3d3d3;
     z-index: -1;
 }
+.timeline-left::after {
+    right: -40px;
+}
+.timeline-right::before {
+    left: -40px;
+}
+.timeline-date {
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
 </style>
-<div class="escalera-container">
 """, unsafe_allow_html=True)
 
-# Generar peldaños
-for i, row in df_filtrado.iterrows():
-    lado_izq = (i % 2 == 0)
-    emoji = row["Emoji"]
-    actividad = row["Actividad_realizada"]
+# Contenedor que incluye línea vertical tronco
+st.markdown('<div class="timeline-wrapper"><div class="timeline-line"></div>', unsafe_allow_html=True)
+
+alternar = True
+for _, row in df_filtrado.iterrows():
+    actividad = f"{row['Icono_actividad']} {row['Actividad_realizada'].title()}"
     fecha = row["Etiqueta"]
 
-    if lado_izq:
-        html = f"""
-        <div class="peldaño">
-            <div class="actividad">{emoji} {actividad}</div>
-            <div class="linea-conector"></div>
-            <div class="fecha">{fecha}</div>
+    if alternar:
+        st.markdown(f"""
+        <div class="timeline-row">
+            <div class="timeline-left"><strong>{actividad}</strong></div>
+            <div class="timeline-right timeline-date">{fecha}</div>
         </div>
-        """
+        """, unsafe_allow_html=True)
     else:
-        html = f"""
-        <div class="peldaño">
-            <div class="fecha">{fecha}</div>
-            <div class="linea-conector"></div>
-            <div class="actividad">{emoji} {actividad}</div>
+        st.markdown(f"""
+        <div class="timeline-row">
+            <div class="timeline-left timeline-date">{fecha}</div>
+            <div class="timeline-right"><strong>{actividad}</strong></div>
         </div>
-        """
-    st.markdown(html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    alternar = not alternar
 
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-#--------------------------------------
-
+# --------- TERCERA GRÁFICA: Infografía tipo línea de tiempo ---------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Tipo Infografía")
+st.subheader("📊 Línea de Tiempo Tipo Infografía")
 
-# Colores por tipo de actividad (puedes ajustar)
 colores_actividad = {
     "FERTILIZACION": "#a6dcef",
     "SIEMBRA": "#8bc34a",
@@ -130,16 +214,14 @@ colores_actividad = {
     "TRILLA": "#f3a683"
 }
 
-# Generar el HTML para la infografía
 html_infografia = """
 <style>
 .timeline {
   position: relative;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto 40px;
   padding: 20px 0;
 }
-
 .timeline::after {
   content: '';
   position: absolute;
@@ -150,22 +232,18 @@ html_infografia = """
   left: 50%;
   margin-left: -2px;
 }
-
 .container {
   padding: 10px 40px;
   position: relative;
   background-color: inherit;
   width: 50%;
 }
-
 .left {
   left: 0;
 }
-
 .right {
   left: 50%;
 }
-
 .content {
   background-color: white;
   padding: 15px 20px;
@@ -173,7 +251,6 @@ html_infografia = """
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   position: relative;
 }
-
 .content::after {
   content: "";
   position: absolute;
@@ -185,41 +262,34 @@ html_infografia = """
   border-radius: 50%;
   z-index: 1;
 }
-
 .left .content::after {
   right: -30px;
 }
-
 .right .content::after {
   left: -30px;
 }
-
 .emoji {
   font-size: 28px;
   margin-bottom: 5px;
 }
-
 .actividad {
   font-weight: 700;
   margin-bottom: 3px;
   font-size: 17px;
 }
-
 .fecha {
   font-size: 14px;
   color: #666;
 }
 </style>
-
 <div class="timeline">
 """
 
-# Agregar cada evento alternando lados
 for i, row in df_filtrado.iterrows():
     lado = "left" if i % 2 == 0 else "right"
     color = colores_actividad.get(row["Actividad_realizada"], "#ccc")
     emoji = emoji_actividades.get(row["Actividad_realizada"], "🔄")
-    actividad = row["Actividad_realizada"]
+    actividad = row["Actividad_realizada"].title()
     fecha = row["Etiqueta"]
     
     html_infografia += f"""
@@ -235,8 +305,6 @@ for i, row in df_filtrado.iterrows():
 html_infografia += "</div>"
 
 st.markdown(html_infografia, unsafe_allow_html=True)
-
-
 
 
 
