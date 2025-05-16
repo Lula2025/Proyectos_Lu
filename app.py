@@ -180,22 +180,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
-# --- Aquí insertas este bloque para la línea de tiempo ---
+# Construcción del HTML para la línea de tiempo alterna con tarjetas
 html_timeline = '<div class="timeline-wrapper">'
 html_timeline += '<div class="timeline-line"></div>'
 
 for i, row in df_filtrado.iterrows():
     actividad = f"{row['Emoji']} {row['Actividad_realizada']}"
     fecha = row['Fecha_en_que_se_realizó_la_actividad'].strftime("%d %B %Y")
-    if i % 2 == 0:  # izquierda
+    if i % 2 == 0:  # lado izquierdo
         html_timeline += f'''
         <div class="timeline-row">
             <div class="timeline-left">{actividad}</div>
             <div class="timeline-date">{fecha}</div>
         </div>
         '''
-    else:  # derecha
+    else:  # lado derecho
         html_timeline += f'''
         <div class="timeline-row">
             <div class="timeline-date">{fecha}</div>
