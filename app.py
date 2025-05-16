@@ -125,11 +125,11 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 #-------------------------
-# Línea de tiempo visual alternada con actividad + fecha en lados opuestos
-st.markdown("### 📜 Historia visual alternada de actividades")
+st.markdown("### 🧭 Línea de Tiempo Visual de Actividades")
 
 st.markdown("""
 <style>
+/* Línea vertical central */
 .timeline {
   position: relative;
   max-width: 1100px;
@@ -138,84 +138,90 @@ st.markdown("""
 .timeline::after {
   content: '';
   position: absolute;
-  width: 6px;
-  background-color: #bbb;
+  width: 4px;
+  background-color: gray;
   top: 0;
   bottom: 0;
   left: 50%;
-  margin-left: -3px;
+  margin-left: -2px;
 }
-.container {
-  padding: 10px 40px;
+
+/* Caja contenedora de cada evento */
+.timeline-entry {
+  padding: 10px 30px;
   position: relative;
   width: 50%;
 }
-.container.left { left: 0; }
-.container.right { left: 50%; }
 
-.container::after {
+/* Puntos rojos de la línea */
+.timeline-entry::before {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
+  right: -6px;
   background-color: white;
-  border: 4px solid #FF6347;
+  border: 3px solid #FF4500;
   top: 15px;
   border-radius: 50%;
   z-index: 1;
 }
-.container.left::after { right: -10px; }
-.container.right::after { left: -10px; }
 
-.content {
-  padding: 20px;
-  background-color: #f1f1f1;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+/* Mitades de la línea */
+.left { left: 0; text-align: right; }
+.right { left: 50%; text-align: left; }
+
+.content-box {
+  background-color: #f4f4f4;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+.fecha {
+  font-size: 16px;
+  font-weight: bold;
+  color: #111;
+  margin-top: 5px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Generar HTML para eventos alternando lados y contenido
-html_eventos = '<div class="timeline">'
+# Construir la línea de tiempo alternada
+html_timeline = '<div class="timeline">'
 lado = "left"
+
 for i, row in df_filtrado.iterrows():
     actividad = row["Actividad_realizada"].replace("_", " ").title()
     icono = row["Icono_actividad"]
     fecha = row["Etiqueta"]
-    
+
     if lado == "left":
-        html_eventos += f'''
-        <div class="container left">
-          <div class="content">
-            <p><strong>{icono} {actividad}</strong></p>
-          </div>
+        html_timeline += f'''
+        <div class="timeline-entry left">
+            <div class="content-box">{icono} {actividad}</div>
         </div>
-        <div class="container right">
-          <div class="content">
-            <p>{fecha}</p>
-          </div>
+        <div class="timeline-entry right">
+            <div class="fecha">{fecha}</div>
         </div>
         '''
         lado = "right"
     else:
-        html_eventos += f'''
-        <div class="container left">
-          <div class="content">
-            <p>{fecha}</p>
-          </div>
+        html_timeline += f'''
+        <div class="timeline-entry left">
+            <div class="fecha">{fecha}</div>
         </div>
-        <div class="container right">
-          <div class="content">
-            <p><strong>{icono} {actividad}</strong></p>
-          </div>
+        <div class="timeline-entry right">
+            <div class="content-box">{icono} {actividad}</div>
         </div>
         '''
         lado = "left"
-html_eventos += "</div>"
 
-# Mostrar la línea de tiempo en Streamlit
-st.markdown(html_eventos, unsafe_allow_html=True)
+html_timeline += "</div>"
+
+st.markdown(html_timeline, unsafe_allow_html=True)
 
 
 
