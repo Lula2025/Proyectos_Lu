@@ -129,8 +129,6 @@ st.markdown("""
     width: 180px;
     padding: 6px 12px;
     border-radius: 8px;
-    background-color: #f0f0f0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 14px;
     display: flex;
     align-items: center;
@@ -140,12 +138,28 @@ st.markdown("""
     text-align: right;
     margin-right: 40px;
     position: relative;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .timeline-right {
     justify-content: flex-start;
     text-align: left;
     margin-left: 40px;
     position: relative;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+/* Para que las fechas no tengan fondo ni sombra: */
+.timeline-date {
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
 }
 /* Línea horizontal conectora */
 .timeline-left::after, .timeline-right::before {
@@ -163,40 +177,8 @@ st.markdown("""
 .timeline-right::before {
     left: -40px;
 }
-.timeline-date {
-    font-size: 13px;
-    color: #444;
-    display: flex;
-    align-items: center;
-}
 </style>
 """, unsafe_allow_html=True)
-
-# Contenedor que incluye línea vertical tronco
-st.markdown('<div class="timeline-wrapper"><div class="timeline-line"></div>', unsafe_allow_html=True)
-
-alternar = True
-for _, row in df_filtrado.iterrows():
-    actividad = f"{row['Icono_actividad']} {row['Actividad_realizada'].title()}"
-    fecha = row["Etiqueta"]
-
-    if alternar:
-        st.markdown(f"""
-        <div class="timeline-row">
-            <div class="timeline-left"><strong>{actividad}</strong></div>
-            <div class="timeline-right timeline-date">{fecha}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div class="timeline-row">
-            <div class="timeline-left timeline-date">{fecha}</div>
-            <div class="timeline-right"><strong>{actividad}</strong></div>
-        </div>
-        """, unsafe_allow_html=True)
-    alternar = not alternar
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 
 
