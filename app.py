@@ -97,56 +97,56 @@ st.plotly_chart(fig, use_container_width=True)
 st.markdown("---")
 st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Conectores)")
 
-# CSS para línea vertical, cuadros, texto y líneas conectores
+# CSS con línea vertical tronco visible y líneas horizontales conectores
 st.markdown("""
 <style>
-.timeline-container {
-    display: flex;
-    justify-content: center;
+.timeline-wrapper {
     position: relative;
-    margin-bottom: 20px;
-    align-items: center;
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-bottom: 40px;
 }
 .timeline-line {
     position: absolute;
     top: 0;
+    bottom: 0;
     left: 50%;
-    transform: translateX(-50%);
-    height: 100%;
     width: 4px;
     background-color: #FF6347;
     border-radius: 2px;
+    transform: translateX(-50%);
+    z-index: 0;
+}
+.timeline-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
     z-index: 1;
 }
-.timeline-item {
-    background-color: #f0f0f0;
+.timeline-left, .timeline-right {
+    width: 180px;
     padding: 6px 12px;
     border-radius: 8px;
-    width: 180px;
-    font-size: 14px;
+    background-color: #f0f0f0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: relative;
-    z-index: 2;
-}
-.timeline-date {
-    font-size: 13px;
-    color: #444;
-    padding: 0 10px;
-    width: 180px;
-    position: relative;
-    z-index: 2;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
 }
 .timeline-left {
+    justify-content: flex-end;
     text-align: right;
     margin-right: 40px;
     position: relative;
 }
 .timeline-right {
+    justify-content: flex-start;
     text-align: left;
     margin-left: 40px;
     position: relative;
 }
-
 /* Línea horizontal conectora */
 .timeline-left::after, .timeline-right::before {
     content: "";
@@ -155,43 +155,48 @@ st.markdown("""
     width: 40px;
     height: 2px;
     background-color: #d3d3d3;
-    z-index: 1;
+    z-index: -1;
 }
-
 .timeline-left::after {
     right: -40px;
 }
 .timeline-right::before {
     left: -40px;
 }
+.timeline-date {
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# Mostrar línea vertical
-st.markdown('<div class="timeline-line" style="height: calc(100% - 20px); top: 10px;"></div>', unsafe_allow_html=True)
+# Contenedor que incluye línea vertical tronco
+st.markdown('<div class="timeline-wrapper"><div class="timeline-line"></div>', unsafe_allow_html=True)
 
 alternar = True
 for _, row in df_filtrado.iterrows():
     actividad = f"{row['Icono_actividad']} {row['Actividad_realizada'].title()}"
     fecha = row["Etiqueta"]
 
-    col1, col2, col3 = st.columns([4, 1, 4])
     if alternar:
-        with col1:
-            st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-left"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
-        with col2:
-            st.markdown('')  # Columna del centro vacía para la línea vertical
-        with col3:
-            st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-right">{fecha}</div></div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="timeline-row">
+            <div class="timeline-left"><strong>{actividad}</strong></div>
+            <div class="timeline-right timeline-date">{fecha}</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        with col1:
-            st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-left">{fecha}</div></div>', unsafe_allow_html=True)
-        with col2:
-            st.markdown('')
-        with col3:
-            st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-right"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
-
+        st.markdown(f"""
+        <div class="timeline-row">
+            <div class="timeline-left timeline-date">{fecha}</div>
+            <div class="timeline-right"><strong>{actividad}</strong></div>
+        </div>
+        """, unsafe_allow_html=True)
     alternar = not alternar
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 
 
