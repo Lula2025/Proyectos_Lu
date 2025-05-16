@@ -87,96 +87,65 @@ fig.update_traces(
 st.plotly_chart(fig, use_container_width=True)
 
 # -------- SEGUNDA GRÁFICA: Línea de tiempo estilo árbol --------
+# -------- SEGUNDA GRÁFICA COMPACTA: Tarjetas tipo mosaico --------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Tronco Central)")
+st.subheader("🌿 Línea de Tiempo Resumida (Vista tipo Mosaico)")
 
-# CSS actualizado con menor separación horizontal
+# CSS para tarjetas en rejilla
 st.markdown("""
 <style>
-.timeline-container {
-    position: relative;
-    margin: 50px auto;
-    width: 90%;
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    padding: 20px 10px;
 }
-.timeline-trunk {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 4px;
-    background: linear-gradient(to bottom, #FF6347, #ffa07a);
-    box-shadow: 0 0 10px rgba(255,99,71,0.3);
-    z-index: 0;
-}
-.timeline-event {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 40px 0;
-    position: relative;
-    z-index: 1;
-    animation: fadeIn 0.6s ease-in;
-}
-.timeline-box {
-    background: linear-gradient(135deg, #fff7f0, #fefefe);
-    padding: 12px 16px;
+.grid-card {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
     border-radius: 12px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease-in-out;
+}
+.grid-card:hover {
+    transform: scale(1.03);
+}
+.grid-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+.grid-actividad {
+    font-weight: 600;
     font-size: 16px;
-    max-width: 220px;
+    color: #333;
 }
-.timeline-box:hover {
-    transform: scale(1.02);
-}
-.timeline-actividad {
-    font-weight: bold;
-    font-size: 18px;
-}
-.timeline-fecha {
-    font-style: italic;
-    color: #666;
+.grid-fecha {
     font-size: 14px;
-}
-.timeline-connector {
-    flex: 0 0 30px;
-    height: 2px;
-    background-color: #ccc;
-    margin: 0 6px;
-    z-index: 0;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    color: #777;
+    margin-top: 4px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# HTML dinámico con menor separación entre tarjetas
-st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
-st.markdown('<div class="timeline-trunk"></div>', unsafe_allow_html=True)
+# Contenedor HTML
+st.markdown('<div class="grid-container">', unsafe_allow_html=True)
 
-for i, row in df_filtrado.iterrows():
-    actividad = f"<span class='timeline-actividad'>{row['Emoji']} {row['Actividad_realizada']}</span>"
-    fecha = f"<span class='timeline-fecha'>{row['Etiqueta']}</span>"
-    lado = "left" if i % 2 == 0 else "right"
+for _, row in df_filtrado.iterrows():
+    actividad = row["Actividad_realizada"]
+    emoji = row["Emoji"]
+    fecha = row["Etiqueta"]
 
-    if lado == "left":
-        html = f"""
-        <div class="timeline-event">
-            <div class="timeline-box">{actividad}</div>
-            <div class="timeline-connector"></div>
-            <div class="timeline-box">{fecha}</div>
-        </div>
-        """
-    else:
-        html = f"""
-        <div class="timeline-event">
-            <div class="timeline-box">{fecha}</div>
-            <div class="timeline-connector"></div>
-            <div class="timeline-box">{actividad}</div>
-        </div>
-        """
-    st.markdown(html, unsafe_allow_html=True)
+    tarjeta_html = f"""
+    <div class="grid-card">
+        <div class="grid-emoji">{emoji}</div>
+        <div class="grid-actividad">{actividad}</div>
+        <div class="grid-fecha">{fecha}</div>
+    </div>
+    """
+    st.markdown(tarjeta_html, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
