@@ -95,38 +95,97 @@ st.plotly_chart(fig, use_container_width=True)
 
 # --------- SEGUNDA GRÁFICA: Línea de tiempo alterna con tarjetas ---------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Alterna (Estilo Tarjeta)")
+st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol)")
 
-df_filtrado["Fecha_etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d de %B %Y")
+# CSS para línea vertical, cuadros, texto y puntos
+st.markdown("""
+<style>
+.timeline-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: 4px;
+    background-color: #FF6347;
+    border-radius: 2px;
+    z-index: 1;
+}
+.timeline-item {
+    background-color: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 8px;
+    width: 180px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+}
+.timeline-date {
+    font-size: 13px;
+    color: #444;
+    padding: 0 10px;
+    width: 180px;
+}
+.timeline-left {
+    text-align: right;
+    margin-right: 40px;
+}
+.timeline-right {
+    text-align: left;
+    margin-left: 40px;
+}
+
+/* Punto conector a la línea central */
+.timeline-point {
+    position: relative;
+    width: 20px;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.timeline-point::before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background-color: #FF6347;
+    border: 3px solid white;
+    border-radius: 50%;
+    z-index: 4;
+}
+</style>
+""", unsafe_allow_html=True)
 
 alternar = True
 for _, row in df_filtrado.iterrows():
-    actividad = f"{row['Emoji']} {row['Actividad_realizada'].title()}"
-    fecha = row["Fecha_etiqueta"]
+    actividad = f"{row['Icono_actividad']} {row['Actividad_realizada'].title()}"
+    fecha = row["Etiqueta"]
 
     col1, col2, col3 = st.columns([4, 1, 4])
-
     if alternar:
         with col1:
-            st.markdown(f"""
-                <div style="background-color:#f0f0f0;padding:10px;border-radius:10px;width:100%;text-align:right">
-                    <strong>{actividad}</strong>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-left"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
+        with col2:
+            st.markdown('<div class="timeline-point"></div>', unsafe_allow_html=True)
         with col3:
-            st.markdown(f"<p style='text-align:left;font-size:18px'>{fecha}</p>", unsafe_allow_html=True)
+            st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-right">{fecha}</div></div>', unsafe_allow_html=True)
     else:
         with col1:
-            st.markdown(f"<p style='text-align:right;font-size:18px'>{fecha}</p>", unsafe_allow_html=True)
+            st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-left">{fecha}</div></div>', unsafe_allow_html=True)
+        with col2:
+            st.markdown('<div class="timeline-point"></div>', unsafe_allow_html=True)
         with col3:
-            st.markdown(f"""
-                <div style="background-color:#f0f0f0;padding:10px;border-radius:10px;width:100%;text-align:left">
-                    <strong>{actividad}</strong>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-right"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
 
     alternar = not alternar
-    st.markdown("<hr style='border:1px solid #ddd'>", unsafe_allow_html=True)
 
 
 
