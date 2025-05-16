@@ -221,7 +221,7 @@ st.markdown("""
 <style>
 .timeline-header {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 12px;
     gap: 8px;
@@ -240,7 +240,7 @@ st.markdown("""
 }
 </style>
 <div class="timeline-header">
-    <div>Fechas →</div>
+    <div>Actividades →</div>
     <div class="arrow">→</div>
     <div class="arrow">→</div>
     <div class="arrow">→</div>
