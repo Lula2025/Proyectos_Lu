@@ -1,48 +1,17 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 import plotly.express as px
-from datetime import timedelta  # Solo si lo necesitas para alguna operación específica
 
-# Configuración de la página de Streamlit (debe ir al principio)
+# Configuración inicial
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
+st.title("Actividades por Parcela / ID_Cultivo")
 
-# Agregar márgenes a toda la página con CSS
-st.markdown("""
-    <style>
-        /* Modificar los márgenes de la página */
-        .main {
-            margin: 30px 3000px;  /* 50px arriba y abajo, 150px a la izquierda y derecha */
-        }
-
-        /* Espacio entre las gráficas y otros elementos */
-        .css-1d391kg {
-            margin-bottom: 60px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# Título de la aplicación con un emoji de calendario
-st.title("Actividades por Parcela/ ID_Cultivo")
-
-# Cargar el archivo CSV de actividades
+# Cargar el archivo
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
-
-# Asegurar formato datetime para las fechas
 df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
-# Selección del ID de cultivo con un selectbox
-id_cultivo_seleccionado = st.selectbox(" ✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
-
-# Filtrar los datos por el ID de cultivo seleccionado
-df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
-
-
-
-
-# Ordenar las actividades cronológicamente y luego invertirlas para que las más antiguas estén abajo
-orden_actividades = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad")["Actividad_realizada"].unique()[::-1]
-
-# Diccionario de emojis según la actividad
+# Diccionario de emojis
 emoji_actividades = {
     "FERTILIZACION": "🛍️",
     "SIEMBRA": "🌱",
@@ -55,16 +24,19 @@ emoji_actividades = {
     "TRILLA": "🌽"
 }
 
-# Asignar emojis a las actividades
-df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
-
-# Crear la etiqueta de fecha
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
-
-# Ordenar por fecha
+# Selección de cultivo
+id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
+df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
+df_filtrado['Emoji'] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
 
-# Alternar posiciones para etiquetas
+# --------- PRIMERA GRÁFICA: Plotly timeline ---------
+
+orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
+df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
+
+# Alternar posiciones de texto
 df_filtrado["Posición_texto"] = "top center"
 posiciones = ["top center", "bottom center"]
 ultima_fecha = None
@@ -79,13 +51,12 @@ for i, row in df_filtrado.iterrows():
     df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
     ultima_fecha = fecha_actual
 
-# Crear gráfico de dispersión
 fig = px.scatter(
     df_filtrado,
     x="Fecha_en_que_se_realizó_la_actividad",
     y="Actividad_realizada",
     category_orders={"Actividad_realizada": orden_actividades},
-    title=f"🕒 Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
+    title=f"🗓️ Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
     labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
     color_discrete_sequence=["#FF6347"],
     hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
@@ -121,107 +92,41 @@ fig.update_traces(
 )
 
 st.plotly_chart(fig, use_container_width=True)
-st.markdown("<br>", unsafe_allow_html=True)
 
+# --------- SEGUNDA GRÁFICA: Línea de tiempo alterna con tarjetas ---------
+st.markdown("---")
+st.subheader("🌿 Línea de Tiempo Alterna (Estilo Tarjeta)")
 
-#-------------------------
-st.markdown("### 🧭 Línea de Tiempo Visual de Actividades")
+df_filtrado["Fecha_etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d de %B %Y")
 
-st.markdown("""
-<style>
-/* Línea vertical central */
-.timeline {
-  position: relative;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-.timeline::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  background-color: gray;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  margin-left: -2px;
-}
+alternar = True
+for _, row in df_filtrado.iterrows():
+    actividad = f"{row['Emoji']} {row['Actividad_realizada'].title()}"
+    fecha = row["Fecha_etiqueta"]
 
-/* Caja contenedora de cada evento */
-.timeline-entry {
-  padding: 10px 30px;
-  position: relative;
-  width: 50%;
-}
+    col1, col2, col3 = st.columns([4, 1, 4])
 
-/* Puntos rojos de la línea */
-.timeline-entry::before {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  right: -6px;
-  background-color: white;
-  border: 3px solid #FF4500;
-  top: 15px;
-  border-radius: 50%;
-  z-index: 1;
-}
-
-/* Mitades de la línea */
-.left { left: 0; text-align: right; }
-.right { left: 50%; text-align: left; }
-
-.content-box {
-  background-color: #f4f4f4;
-  padding: 12px 20px;
-  border-radius: 8px;
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 500;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
-}
-.fecha {
-  font-size: 16px;
-  font-weight: bold;
-  color: #111;
-  margin-top: 5px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Construir la línea de tiempo alternada
-html_timeline = '<div class="timeline">'
-lado = "left"
-
-for i, row in df_filtrado.iterrows():
-    actividad = row["Actividad_realizada"].replace("_", " ").title()
-    icono = row["Icono_actividad"]
-    fecha = row["Etiqueta"]
-
-    if lado == "left":
-        html_timeline += f'''
-        <div class="timeline-entry left">
-            <div class="content-box">{icono} {actividad}</div>
-        </div>
-        <div class="timeline-entry right">
-            <div class="fecha">{fecha}</div>
-        </div>
-        '''
-        lado = "right"
+    if alternar:
+        with col1:
+            st.markdown(f"""
+                <div style="background-color:#f0f0f0;padding:10px;border-radius:10px;width:100%;text-align:right">
+                    <strong>{actividad}</strong>
+                </div>
+            """, unsafe_allow_html=True)
+        with col3:
+            st.markdown(f"<p style='text-align:left;font-size:18px'>{fecha}</p>", unsafe_allow_html=True)
     else:
-        html_timeline += f'''
-        <div class="timeline-entry left">
-            <div class="fecha">{fecha}</div>
-        </div>
-        <div class="timeline-entry right">
-            <div class="content-box">{icono} {actividad}</div>
-        </div>
-        '''
-        lado = "left"
+        with col1:
+            st.markdown(f"<p style='text-align:right;font-size:18px'>{fecha}</p>", unsafe_allow_html=True)
+        with col3:
+            st.markdown(f"""
+                <div style="background-color:#f0f0f0;padding:10px;border-radius:10px;width:100%;text-align:left">
+                    <strong>{actividad}</strong>
+                </div>
+            """, unsafe_allow_html=True)
 
-html_timeline += "</div>"
-
-st.markdown(html_timeline, unsafe_allow_html=True)
+    alternar = not alternar
+    st.markdown("<hr style='border:1px solid #ddd'>", unsafe_allow_html=True)
 
 
 
