@@ -212,69 +212,86 @@ colores_actividad = {
     "TRILLA": "#FFD700",          # Dorado
 }
 
-# --------- TERCERA GRÁFICA FINAL: Tabla horizontal con emojis y nombres ---------
+
+# --------- TERCERA GRÁFICA: Infografía tipo tabla horizontal ---------
 st.markdown("---")
-st.subheader("📅 Actividades por Fecha (Vista de Tabla)")
+st.subheader("📊 Infografía Horizontal por Fecha (Tipo Tabla)")
 
-# Fechas únicas ordenadas
-fechas_unicas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values(ascending=False).unique()
-columnas_fecha = [pd.to_datetime(f).strftime("%d %b %Y") for f in fechas_unicas]
+# Obtener fechas únicas ordenadas ascendentemente
+fechas_unicas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values().unique()
 
-# Construir actividades por fecha
-actividades_por_fecha = {}
-for fecha in fechas_unicas:
-    actividades_dia = df_filtrado[df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha]
-    lista_html = ""
-    for _, row in actividades_dia.iterrows():
-        emoji = emoji_actividades.get(row["Actividad_realizada"], "🔄")
-        nombre = row["Actividad_realizada"].replace("_", " ").title()
-        lista_html += f"<div style='margin-bottom:4px'>{emoji} {nombre}</div>"
-    actividades_por_fecha[pd.to_datetime(fecha).strftime("%d %b %Y")] = lista_html
-
-# Estilo de scroll horizontal tipo tabla
+# CSS para la tabla horizontal
 st.markdown("""
 <style>
-.scroll-tabla {
-    display: flex;
-    gap: 16px;
+.horizontal-timeline {
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 }
-.scroll-tabla .columna-fecha {
+.timeline-table {
+    display: flex;
+    gap: 20px;
+}
+.timeline-column {
+    display: flex;
+    flex-direction: column;
     min-width: 180px;
-    background-color: #f0f0f0;
-    padding: 12px;
-    border-radius: 12px;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 10px;
     box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+}
+.timeline-header {
+    font-weight: bold;
     text-align: center;
-    flex-shrink: 0;
+    background-color: #8BC34A;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
 }
-.scroll-tabla .columna-fecha h4 {
-    color: #FF6347;
-    font-size: 15px;
-    margin-bottom: 10px;
-}
-.scroll-tabla .actividad {
-    font-size: 13px;
+.timeline-actividad {
+    background-color: #fff;
+    border-left: 6px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
     margin-bottom: 6px;
+    font-size: 13px;
+    text-align: center;
+}
+.timeline-actividad .icono {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 2px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Renderizar tabla horizontal con columnas de fechas
-st.markdown('<div class="scroll-tabla">', unsafe_allow_html=True)
+# Renderizar tabla horizontal
+st.markdown('<div class="horizontal-timeline"><div class="timeline-table">', unsafe_allow_html=True)
 
-for fecha_col in columnas_fecha:
-    actividades_html = actividades_por_fecha.get(fecha_col, "")
-    st.markdown(f"""
-        <div class="columna-fecha">
-            <h4>{fecha_col}</h4>
-            <div class="actividad">{actividades_html}</div>
-        </div>
-    """, unsafe_allow_html=True)
+for fecha in fechas_unicas:
+    actividades_dia = df_filtrado[
+        df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha
+    ]
+    fecha_str = pd.to_datetime(fecha).strftime("%d %b %Y")
 
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="timeline-column"><div class="timeline-header">{fecha_str}</div>', unsafe_allow_html=True)
 
+    for _, row in actividades_dia.iterrows():
+        actividad = row["Actividad_realizada"]
+        emoji = emoji_actividades.get(actividad, "🔄")
+        nombre = actividad.replace("_", " ").title()
+        color = colores_actividad.get(actividad, "#ccc")
+
+        st.markdown(f'''
+            <div class="timeline-actividad" style="border-left-color: {color};">
+                <span class="icono">{emoji}</span>{nombre}
+            </div>
+        ''', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # Cierra timeline-column
+
+st.markdown('</div></div>', unsafe_allow_html=True)  # Cierra timeline-table y wrapper
 
 
 # ----------------------------
