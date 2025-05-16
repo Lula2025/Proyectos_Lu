@@ -212,106 +212,68 @@ colores_actividad = {
     "TRILLA": "#FFD700",          # Dorado
 }
 
-# --------- TERCERA GRÁFICA: Infografía de fechas con actividades ---------
+# --------- TERCERA GRÁFICA FINAL: Tabla horizontal con emojis y nombres ---------
 st.markdown("---")
-st.subheader("📌 Infografía Vertical")
+st.subheader("📅 Actividades por Fecha (Vista de Tabla)")
 
-# Mapeo de colores
-colores_actividad = {
-    "FERTILIZACION": "#FFB347",
-    "SIEMBRA": "#8BC34A",
-    "BARBECHO": "#FFA07A",
-    "RASTREO": "#FFA07A",
-    "SURCOS": "#FFA07A",
-    "ESCARDA": "#FFA07A",
-    "CONTROL_DE_PLAGAS": "#4CAF50",
-    "CONTROL_DE_MALEZAS": "#4CAF50",
-    "TRILLA": "#FFD700",
-}
+# Fechas únicas ordenadas
+fechas_unicas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values(ascending=False).unique()
+columnas_fecha = [pd.to_datetime(f).strftime("%d %b %Y") for f in fechas_unicas]
 
-# CSS para tarjetas y disposición vertical
+# Construir actividades por fecha
+actividades_por_fecha = {}
+for fecha in fechas_unicas:
+    actividades_dia = df_filtrado[df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha]
+    lista_html = ""
+    for _, row in actividades_dia.iterrows():
+        emoji = emoji_actividades.get(row["Actividad_realizada"], "🔄")
+        nombre = row["Actividad_realizada"].replace("_", " ").title()
+        lista_html += f"<div style='margin-bottom:4px'>{emoji} {nombre}</div>"
+    actividades_por_fecha[pd.to_datetime(fecha).strftime("%d %b %Y")] = lista_html
+
+# Estilo de scroll horizontal tipo tabla
 st.markdown("""
 <style>
-.infografia-lineal {
+.scroll-tabla {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 10px;
 }
-.fecha-row {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-.fecha-tarjeta {
-    background-color: #8BC34A;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-weight: bold;
+.scroll-tabla .columna-fecha {
     min-width: 180px;
+    background-color: #f0f0f0;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
     text-align: center;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    flex-shrink: 0;
 }
-.actividad-tarjeta {
-    background-color: #fff;
-    border-left: 6px solid #ccc;
-    padding: 10px 14px;
-    border-radius: 8px;
-    box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
-    min-width: 120px;
-    text-align: center;
-    font-size: 14px;
+.scroll-tabla .columna-fecha h4 {
+    color: #FF6347;
+    font-size: 15px;
+    margin-bottom: 10px;
 }
-.actividad-tarjeta .icono {
-    font-size: 22px;
-    margin-bottom: 4px;
+.scroll-tabla .actividad {
+    font-size: 13px;
+    margin-bottom: 6px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Fechas únicas ordenadas de más reciente a más antigua
-fechas_siembra = df_filtrado[df_filtrado["Actividad_realizada"] == "SIEMBRA"]
-fechas_ordenadas = fechas_siembra.sort_values(
-    "Fecha_en_que_se_realizó_la_actividad", ascending=False
-)["Fecha_en_que_se_realizó_la_actividad"].unique()
+# Renderizar tabla horizontal con columnas de fechas
+st.markdown('<div class="scroll-tabla">', unsafe_allow_html=True)
 
-st.markdown('<div class="infografia-lineal">', unsafe_allow_html=True)
-
-for fecha in fechas_ordenadas:
-    fecha_str = pd.to_datetime(fecha).strftime("%d %b %Y")
-    
-    # Actividades realizadas ese día
-    actividades_dia = df_filtrado[
-        df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha
-    ]
-
-    st.markdown('<div class="fecha-row">', unsafe_allow_html=True)
-
-    # Tarjeta de fecha
-    st.markdown(f'''
-        <div class="fecha-tarjeta">🌱 {fecha_str}</div>
-    ''', unsafe_allow_html=True)
-
-    # Tarjetas de actividades del día
-    for _, row in actividades_dia.iterrows():
-        actividad = row["Actividad_realizada"]
-        emoji = emoji_actividades.get(actividad, "🔄")
-        color = colores_actividad.get(actividad, "#ccc")
-        nombre = actividad.replace("_", " ").title()
-
-        st.markdown(f'''
-            <div class="actividad-tarjeta" style="border-left-color: {color};">
-                <div class="icono">{emoji}</div>
-                {nombre}
-            </div>
-        ''', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+for fecha_col in columnas_fecha:
+    actividades_html = actividades_por_fecha.get(fecha_col, "")
+    st.markdown(f"""
+        <div class="columna-fecha">
+            <h4>{fecha_col}</h4>
+            <div class="actividad">{actividades_html}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
-
 
 
 
