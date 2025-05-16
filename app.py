@@ -86,46 +86,49 @@ fig.update_traces(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# -------- SEGUNDA GRÁFICA: Línea de tiempo estilo árbol --------
-# -------- SEGUNDA GRÁFICA COMPACTA: Tarjetas tipo mosaico --------
+# -------- SEGUNDA GRÁFICA COMPACTA MEJORADA: Tarjetas tipo mosaico 2.0 --------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Resumida (Vista tipo Mosaico)")
+st.subheader("🌿 Linea de Tiempo")
 
-# CSS para tarjetas en rejilla
+# Nuevo estilo CSS
 st.markdown("""
 <style>
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 16px;
-    padding: 20px 10px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 10px 5px;
 }
 .grid-card {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
-    padding: 16px;
+    background: linear-gradient(to top left, #fefefe, #e9f5ec);
+    border-left: 6px solid #8bc34a;
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease-in-out;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
 }
 .grid-card:hover {
-    transform: scale(1.03);
+    transform: scale(1.02);
+    background: linear-gradient(to top left, #ffffff, #d2f8da);
 }
 .grid-emoji {
-    font-size: 32px;
-    margin-bottom: 8px;
+    font-size: 36px;
+    margin-bottom: 4px;
 }
 .grid-actividad {
     font-weight: 600;
-    font-size: 16px;
+    font-size: 15px;
     color: #333;
+    text-align: center;
 }
 .grid-fecha {
-    font-size: 14px;
-    color: #777;
-    margin-top: 4px;
+    font-size: 13px;
+    color: #555;
+    margin-top: 2px;
+    text-align: center;
 }
 </style>
 """, unsafe_allow_html=True)
