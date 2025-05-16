@@ -251,8 +251,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-st.markdown("---")
-st.subheader("📅 Linea de Tiempo")
 
 # Obtener fechas únicas en orden cronológico
 fechas_ordenadas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values().unique()
