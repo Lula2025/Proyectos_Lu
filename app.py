@@ -199,6 +199,19 @@ for _, row in df_filtrado.iterrows():
 st.markdown('</div>', unsafe_allow_html=True)
 
 # --------- TERCERA GRÁFICA: Infografía tipo línea de tiempo ---------
+
+colores_actividad = {
+    "FERTILIZACION": "#FFB347",  # Naranja claro
+    "SIEMBRA": "#8BC34A",        # Verde claro
+    "BARBECHO": "#FFA07A",       # Salmón
+    "RASTREO": "#FFA07A",        # Salmón
+    "SURCOS": "#FFA07A",         # Salmón
+    "ESCARDA": "#FFA07A",        # Salmón
+    "CONTROL_DE_PLAGAS": "#4CAF50", # Verde oscuro
+    "CONTROL_DE_MALEZAS": "#4CAF50",# Verde oscuro
+    "TRILLA": "#FFD700",          # Dorado
+}
+
 st.markdown("---")
 st.subheader("📋 Línea de Tiempo Estilo Infografía con Tarjetas")
 
