@@ -4,8 +4,8 @@ from datetime import datetime
 import plotly.express as px
 
 # Configuración inicial
-st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
-st.title("Actividades por Parcela / ID_Cultivo")
+st.set_page_config(page_title="🌳 Línea de Tiempo de Actividades", layout="wide")
+st.title("🌱 Actividades por Parcela / ID_Cultivo")
 
 # Cargar archivo
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
@@ -24,161 +24,112 @@ emoji_actividades = {
     "TRILLA": "🌽"
 }
 
-# Selección de cultivo
+# Filtro
 id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
-df_filtrado['Emoji'] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
+df_filtrado["Emoji"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
 
-# -------- PRIMERA GRÁFICA --------
-orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
-
-fig = px.scatter(
-    df_filtrado,
-    x="Fecha_en_que_se_realizó_la_actividad",
-    y="Actividad_realizada",
-    category_orders={"Actividad_realizada": orden_actividades},
-    title=f"🗓️ Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
-    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
-    color_discrete_sequence=["#FF6347"],
-    hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
-)
-
-fig.update_layout(
-    yaxis=dict(
-        tickmode="array",
-        tickvals=orden_actividades,
-        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],
-    ),
-    xaxis_title="Mes y Año",
-    yaxis_title="Actividad",
-    xaxis=dict(tickformat="%b %Y", tickangle=45, dtick="M1"),
-    margin=dict(l=40, r=40, t=80, b=80),
-    height=600,
-    width=1200,
-    title_font_size=24,
-    font=dict(size=12, family="Arial, sans-serif"),
-    plot_bgcolor="#F9F9F9"
-)
-
-fig.update_traces(
-    text=df_filtrado["Etiqueta"],
-    textposition="top center",
-    textfont_size=8,
-    mode="markers+text",
-    marker=dict(size=8, symbol="circle", color="#FF6347")
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# -------- SEGUNDA GRÁFICA (Línea vertical con tarjetas) --------
-st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Estilo Árbol (Visualización Alterna con Tronco)")
-
-# Estilo CSS para visualización tipo "árbol"
+# ----------- CSS personalizado bonito ----------
 st.markdown("""
 <style>
+/* Estructura general */
 .timeline-container {
     position: relative;
-    margin: 40px auto;
-    padding-left: 50px;
-    padding-right: 50px;
-    width: 100%;
+    margin: 50px auto;
+    width: 90%;
 }
 .timeline-trunk {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 50%;
-    width: 4px;
-    background-color: #FF6347;
+    width: 5px;
+    background: linear-gradient(to bottom, #FF6347, #ffa07a);
+    box-shadow: 0 0 10px rgba(255,99,71,0.3);
     z-index: 0;
 }
+
+/* Fila de evento */
 .timeline-event {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 30px 0;
+    margin: 50px 0;
     position: relative;
     z-index: 1;
+    animation: fadeIn 0.8s ease-in;
 }
-.timeline-card {
-    background-color: #f0f0f0;
-    padding: 10px 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-size: 14px;
-    max-width: 220px;
+
+/* Tarjetas de actividad y fecha */
+.timeline-box {
+    background: linear-gradient(135deg, #fff7f0, #fefefe);
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    font-size: 16px;
+    max-width: 240px;
+    transition: transform 0.3s ease;
 }
-.timeline-date {
-    font-size: 13px;
-    color: #333;
+.timeline-box:hover {
+    transform: scale(1.02);
+}
+.timeline-actividad {
+    font-weight: bold;
+    font-size: 18px;
+}
+.timeline-fecha {
     font-style: italic;
-    background-color: #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #666;
+    font-size: 14px;
 }
-.timeline-left .timeline-card {
-    margin-right: 20px;
-    text-align: right;
-}
-.timeline-right .timeline-card {
-    margin-left: 20px;
-    text-align: left;
-}
-.timeline-left, .timeline-right {
-    display: flex;
-    align-items: center;
-    width: 45%;
-}
-.timeline-date-wrapper {
-    width: 10%;
-    text-align: center;
-}
-.connector-left::after, .connector-right::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    width: 40px;
+
+/* Línea conectora */
+.timeline-connector {
+    flex: 1;
     height: 2px;
     background-color: #ccc;
+    margin: 0 10px;
+    z-index: 0;
 }
-.connector-left::after {
-    right: -40px;
-}
-.connector-right::before {
-    left: -40px;
+
+/* Animación */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Contenedor HTML principal
+# ----------- Timeline HTML dinámico bonito ----------
 st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
 st.markdown('<div class="timeline-trunk"></div>', unsafe_allow_html=True)
 
-# HTML dinámico alternando izquierda/derecha
 for i, row in df_filtrado.iterrows():
+    actividad = f"<span class='timeline-actividad'>{row['Emoji']} {row['Actividad_realizada']}</span>"
+    fecha = f"<span class='timeline-fecha'>{row['Etiqueta']}</span>"
     lado = "left" if i % 2 == 0 else "right"
-    actividad = f"{row['Emoji']} {row['Actividad_realizada']}"
-    fecha = row["Etiqueta"]
 
-    html = f"""
-    <div class="timeline-event timeline-{lado}">
-        <div class="timeline-{lado} connector-{lado}">
-            <div class="timeline-card">{actividad}</div>
+    if lado == "left":
+        html = f"""
+        <div class="timeline-event">
+            <div class="timeline-box">{actividad}</div>
+            <div class="timeline-connector"></div>
+            <div class="timeline-box">{fecha}</div>
         </div>
-        <div class="timeline-date-wrapper">
-            <div class="timeline-date">{fecha}</div>
+        """
+    else:
+        html = f"""
+        <div class="timeline-event">
+            <div class="timeline-box">{fecha}</div>
+            <div class="timeline-connector"></div>
+            <div class="timeline-box">{actividad}</div>
         </div>
-    </div>
-    """
+        """
     st.markdown(html, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
-
-
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------------------
 # TABLA DE INSUMOS
