@@ -212,34 +212,105 @@ colores_actividad = {
     "TRILLA": "#FFD700",          # Dorado
 }
 
+# --------- TERCERA GRÁFICA: Infografía de fechas con actividades ---------
 st.markdown("---")
-st.subheader("📋 Línea de Tiempo Estilo Infografía con Tarjetas")
+st.subheader("📌 Infografía Vertical")
 
-# Crear tarjetas tipo infografía con emojis, fecha y actividad
-for i, row in df_filtrado.iterrows():
-    color = colores_actividad.get(row["Actividad_realizada"], "#ccc")
-    emoji = emoji_actividades.get(row["Actividad_realizada"], "🔄")
-    actividad = row["Actividad_realizada"].replace("_", " ").title()
-    fecha = row["Etiqueta"]
+# Mapeo de colores
+colores_actividad = {
+    "FERTILIZACION": "#FFB347",
+    "SIEMBRA": "#8BC34A",
+    "BARBECHO": "#FFA07A",
+    "RASTREO": "#FFA07A",
+    "SURCOS": "#FFA07A",
+    "ESCARDA": "#FFA07A",
+    "CONTROL_DE_PLAGAS": "#4CAF50",
+    "CONTROL_DE_MALEZAS": "#4CAF50",
+    "TRILLA": "#FFD700",
+}
 
-    st.markdown(f"""
-    <div style="
-        background-color: {color};
-        border-radius: 12px;
-        padding: 15px 20px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        display: flex;
-        align-items: center;
-        max-width: 600px;
-    ">
-        <div style="font-size: 30px; margin-right: 15px;">{emoji}</div>
-        <div>
-            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">{actividad}</div>
-            <div style="color: #333; font-size: 14px;">{fecha}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+# CSS para tarjetas y disposición vertical
+st.markdown("""
+<style>
+.infografia-lineal {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 30px;
+}
+.fecha-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.fecha-tarjeta {
+    background-color: #8BC34A;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: bold;
+    min-width: 180px;
+    text-align: center;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
+.actividad-tarjeta {
+    background-color: #fff;
+    border-left: 6px solid #ccc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+    min-width: 120px;
+    text-align: center;
+    font-size: 14px;
+}
+.actividad-tarjeta .icono {
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Fechas únicas ordenadas de más reciente a más antigua
+fechas_siembra = df_filtrado[df_filtrado["Actividad_realizada"] == "SIEMBRA"]
+fechas_ordenadas = fechas_siembra.sort_values(
+    "Fecha_en_que_se_realizó_la_actividad", ascending=False
+)["Fecha_en_que_se_realizó_la_actividad"].unique()
+
+st.markdown('<div class="infografia-lineal">', unsafe_allow_html=True)
+
+for fecha in fechas_ordenadas:
+    fecha_str = pd.to_datetime(fecha).strftime("%d %b %Y")
+    
+    # Actividades realizadas ese día
+    actividades_dia = df_filtrado[
+        df_filtrado["Fecha_en_que_se_realizó_la_actividad"] == fecha
+    ]
+
+    st.markdown('<div class="fecha-row">', unsafe_allow_html=True)
+
+    # Tarjeta de fecha
+    st.markdown(f'''
+        <div class="fecha-tarjeta">🌱 {fecha_str}</div>
+    ''', unsafe_allow_html=True)
+
+    # Tarjetas de actividades del día
+    for _, row in actividades_dia.iterrows():
+        actividad = row["Actividad_realizada"]
+        emoji = emoji_actividades.get(actividad, "🔄")
+        color = colores_actividad.get(actividad, "#ccc")
+        nombre = actividad.replace("_", " ").title()
+
+        st.markdown(f'''
+            <div class="actividad-tarjeta" style="border-left-color: {color};">
+                <div class="icono">{emoji}</div>
+                {nombre}
+            </div>
+        ''', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 
 
