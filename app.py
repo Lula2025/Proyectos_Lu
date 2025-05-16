@@ -233,7 +233,7 @@ actividades_por_fecha = {
 # Determinar el número máximo de actividades en un día
 max_actividades = max(len(act_list) for act_list in actividades_por_fecha.values())
 
-# Construir estructura de tabla con filas iguales
+# Construir estructura de tabla
 tabla_datos = {}
 for fecha in fechas_str:
     actividades = actividades_por_fecha.get(fecha, [])
@@ -242,19 +242,26 @@ for fecha in fechas_str:
 
 df_tabla = pd.DataFrame(tabla_datos)
 
-# Estilo con HTML y CSS para simular infografía
+# Estilo
 st.markdown("""
 <style>
 .infografia-tabla {
     overflow-x: auto;
     border-collapse: collapse;
     margin-top: 20px;
+    display: block;
+    width: 100%;
+}
+.infografia-tabla table {
+    width: auto;
+    border-collapse: collapse;
 }
 .infografia-tabla th {
     background-color: #4CAF50;
     color: white;
     padding: 8px;
     text-align: center;
+    border: 1px solid #ccc;
 }
 .infografia-tabla td {
     background-color: #f9f9f9;
@@ -262,21 +269,25 @@ st.markdown("""
     border: 1px solid #ddd;
     text-align: center;
     font-size: 14px;
+    min-width: 120px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Mostrar tabla
-st.markdown('<table class="infografia-tabla">', unsafe_allow_html=True)
+# Renderizar tabla HTML
+html = '<div class="infografia-tabla"><table><thead><tr>'
+html += ''.join([f"<th>{fecha}</th>" for fecha in df_tabla.columns])
+html += '</tr></thead><tbody>'
 
-# Encabezado con fechas
-st.markdown("<tr>" + "".join([f"<th>{fecha}</th>" for fecha in df_tabla.columns]) + "</tr>", unsafe_allow_html=True)
-
-# Filas con actividades
 for i in range(max_actividades):
-    st.markdown("<tr>" + "".join([f"<td>{df_tabla.iloc[i, j]}</td>" for j in range(len(df_tabla.columns))]) + "</tr>", unsafe_allow_html=True)
+    html += '<tr>'
+    for col in df_tabla.columns:
+        html += f"<td>{df_tabla.loc[i, col]}</td>"
+    html += '</tr>'
 
-st.markdown('</table>', unsafe_allow_html=True)
+html += '</tbody></table></div>'
+
+st.markdown(html, unsafe_allow_html=True)
 
 # ----------------------------
 # TABLA DE INSUMOS
