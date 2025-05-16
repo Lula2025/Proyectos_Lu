@@ -200,111 +200,33 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # --------- TERCERA GRÁFICA: Infografía tipo línea de tiempo ---------
 st.markdown("---")
-st.subheader("📊 Línea de Tiempo Tipo Infografía")
+st.subheader("📋 Línea de Tiempo Estilo Infografía con Tarjetas")
 
-colores_actividad = {
-    "FERTILIZACION": "#a6dcef",
-    "SIEMBRA": "#8bc34a",
-    "BARBECHO": "#f9bc60",
-    "RASTREO": "#f9bc60",
-    "SURCOS": "#f9bc60",
-    "ESCARDA": "#f9bc60",
-    "CONTROL_DE_PLAGAS": "#ff6f61",
-    "CONTROL_DE_MALEZAS": "#ff6f61",
-    "TRILLA": "#f3a683"
-}
-
-html_infografia = """
-<style>
-.timeline {
-  position: relative;
-  max-width: 700px;
-  margin: 0 auto 40px;
-  padding: 20px 0;
-}
-.timeline::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  background-color: #ddd;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  margin-left: -2px;
-}
-.container {
-  padding: 10px 40px;
-  position: relative;
-  background-color: inherit;
-  width: 50%;
-}
-.left {
-  left: 0;
-}
-.right {
-  left: 50%;
-}
-.content {
-  background-color: white;
-  padding: 15px 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-  position: relative;
-}
-.content::after {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 15px;
-  background-color: white;
-  border: 4px solid #ddd;
-  border-radius: 50%;
-  z-index: 1;
-}
-.left .content::after {
-  right: -30px;
-}
-.right .content::after {
-  left: -30px;
-}
-.emoji {
-  font-size: 28px;
-  margin-bottom: 5px;
-}
-.actividad {
-  font-weight: 700;
-  margin-bottom: 3px;
-  font-size: 17px;
-}
-.fecha {
-  font-size: 14px;
-  color: #666;
-}
-</style>
-<div class="timeline">
-"""
-
+# Crear tarjetas tipo infografía con emojis, fecha y actividad
 for i, row in df_filtrado.iterrows():
-    lado = "left" if i % 2 == 0 else "right"
     color = colores_actividad.get(row["Actividad_realizada"], "#ccc")
     emoji = emoji_actividades.get(row["Actividad_realizada"], "🔄")
-    actividad = row["Actividad_realizada"].title()
+    actividad = row["Actividad_realizada"].replace("_", " ").title()
     fecha = row["Etiqueta"]
-    
-    html_infografia += f"""
-    <div class="container {lado}">
-      <div class="content" style="border-left: 6px solid {color};">
-        <div class="emoji">{emoji}</div>
-        <div class="actividad">{actividad}</div>
-        <div class="fecha">{fecha}</div>
-      </div>
+
+    st.markdown(f"""
+    <div style="
+        background-color: {color};
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        max-width: 600px;
+    ">
+        <div style="font-size: 30px; margin-right: 15px;">{emoji}</div>
+        <div>
+            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">{actividad}</div>
+            <div style="color: #333; font-size: 14px;">{fecha}</div>
+        </div>
     </div>
-    """
-
-html_infografia += "</div>"
-
-st.markdown(html_infografia, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 
 
