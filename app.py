@@ -214,6 +214,8 @@ colores_actividad = {
 
 
 # --------- TERCERA GRÁFICA: Tabla Horizontal por Fecha ---------
+st.markdown("---")
+st.subheader("📅 Linea de Tiempo")
 
 st.markdown("""
 <style>
