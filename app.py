@@ -152,6 +152,37 @@ for _, row in df_filtrado.iterrows():
 
 st.markdown('</div>', unsafe_allow_html=True)
 
+
+#---------------
+# -------- TERCERA GRÁFICA: Espiral de Actividades --------
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.markdown("---")
+st.subheader("🔄 Espiral de Actividades")
+
+# Generar coordenadas en espiral
+n = len(df_filtrado)
+theta = np.linspace(0, 4 * np.pi, n)
+r = np.linspace(1, 10, n)
+x = r * np.cos(theta)
+y = r * np.sin(theta)
+
+fig_spiral, ax = plt.subplots(figsize=(8, 8))
+ax.set_facecolor('#f9f9f9')
+
+for i, (x_i, y_i, row) in enumerate(zip(x, y, df_filtrado.itertuples())):
+    ax.plot(x_i, y_i, 'o', markersize=10, color="#8bc34a")
+    ax.text(x_i, y_i, f"{row.Emoji}", fontsize=16, ha='center', va='center')
+    ax.text(x_i, y_i - 0.5, f"{row.Actividad_realizada}", fontsize=7, ha='center', va='center')
+    ax.text(x_i, y_i - 1, f"{row.Etiqueta}", fontsize=6, ha='center', va='center', color='gray')
+
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_title(f"🔁 Espiral de Actividades - {id_cultivo_seleccionado}", fontsize=14)
+ax.axis("off")
+st.pyplot(fig_spiral)
+
 # ----------------------------
 # TABLA DE INSUMOS
 # ----------------------------
