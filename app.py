@@ -24,17 +24,75 @@ emoji_actividades = {
     "TRILLA": "🌽"
 }
 
-# Filtro
+# Filtro de ID_Cultivo
 id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
 df_filtrado["Emoji"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
 
-# ----------- CSS personalizado bonito ----------
+# -------- PRIMERA GRÁFICA: Plotly timeline --------
+orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
+df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
+df_filtrado["Posición_texto"] = "top center"
+posiciones = ["top center", "bottom center"]
+ultima_fecha = None
+posicion_actual = 0
+
+for i, row in df_filtrado.iterrows():
+    fecha_actual = row["Fecha_en_que_se_realizó_la_actividad"]
+    if ultima_fecha and abs((fecha_actual - ultima_fecha).days) <= 2:
+        posicion_actual = (posicion_actual + 1) % 2
+    else:
+        posicion_actual = 0
+    df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
+    ultima_fecha = fecha_actual
+
+fig = px.scatter(
+    df_filtrado,
+    x="Fecha_en_que_se_realizó_la_actividad",
+    y="Actividad_realizada",
+    category_orders={"Actividad_realizada": orden_actividades},
+    title=f"🗓️ Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
+    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
+    color_discrete_sequence=["#FF6347"],
+    hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
+)
+
+fig.update_layout(
+    yaxis=dict(
+        tickmode="array",
+        tickvals=orden_actividades,
+        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],
+    ),
+    xaxis_title="Mes y Año",
+    yaxis_title="Actividad",
+    xaxis=dict(tickformat="%b %Y", tickangle=45, dtick="M1"),
+    margin=dict(l=40, r=40, t=80, b=80),
+    height=600,
+    width=1200,
+    title_font_size=24,
+    font=dict(size=12, family="Arial, sans-serif"),
+    plot_bgcolor="#F9F9F9"
+)
+
+fig.update_traces(
+    text=df_filtrado["Etiqueta"],
+    textposition=df_filtrado["Posición_texto"],
+    textfont_size=8,
+    mode="markers+text",
+    marker=dict(size=8, symbol="circle", color="#FF6347")
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# -------- SEGUNDA GRÁFICA: Línea de tiempo estilo árbol --------
+st.markdown("---")
+st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Tronco Central)")
+
+# CSS actualizado con menor separación horizontal
 st.markdown("""
 <style>
-/* Estructura general */
 .timeline-container {
     position: relative;
     margin: 50px auto;
@@ -45,32 +103,27 @@ st.markdown("""
     top: 0;
     bottom: 0;
     left: 50%;
-    width: 5px;
+    width: 4px;
     background: linear-gradient(to bottom, #FF6347, #ffa07a);
     box-shadow: 0 0 10px rgba(255,99,71,0.3);
     z-index: 0;
 }
-
-/* Fila de evento */
 .timeline-event {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin: 50px 0;
+    margin: 40px 0;
     position: relative;
     z-index: 1;
-    animation: fadeIn 0.8s ease-in;
+    animation: fadeIn 0.6s ease-in;
 }
-
-/* Tarjetas de actividad y fecha */
 .timeline-box {
     background: linear-gradient(135deg, #fff7f0, #fefefe);
-    padding: 16px 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     font-size: 16px;
-    max-width: 240px;
-    transition: transform 0.3s ease;
+    max-width: 220px;
 }
 .timeline-box:hover {
     transform: scale(1.02);
@@ -84,17 +137,13 @@ st.markdown("""
     color: #666;
     font-size: 14px;
 }
-
-/* Línea conectora */
 .timeline-connector {
-    flex: 1;
+    flex: 0 0 30px;
     height: 2px;
     background-color: #ccc;
-    margin: 0 10px;
+    margin: 0 6px;
     z-index: 0;
 }
-
-/* Animación */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -102,7 +151,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ----------- Timeline HTML dinámico bonito ----------
+# HTML dinámico con menor separación entre tarjetas
 st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
 st.markdown('<div class="timeline-trunk"></div>', unsafe_allow_html=True)
 
