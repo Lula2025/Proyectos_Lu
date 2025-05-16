@@ -214,8 +214,43 @@ colores_actividad = {
 
 
 # --------- TERCERA GRÁFICA: Tabla Horizontal por Fecha ---------
+
+st.markdown("""
+<style>
+.timeline-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #555;
+}
+.timeline-header .arrow {
+    font-size: 22px;
+    color: #FF6347;
+}
+.timeline-header .dot {
+    width: 14px;
+    height: 14px;
+    background-color: #FF6347;
+    border-radius: 50%;
+}
+</style>
+<div class="timeline-header">
+    <div class="arrow">⬅️</div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="arrow">➡️</div>
+</div>
+""", unsafe_allow_html=True)
+
+
 st.markdown("---")
-st.subheader("📅 Tabla Horizontal por Fecha (Tipo Infografía)")
+st.subheader("📅 Linea de Tiempo")
 
 # Obtener fechas únicas en orden cronológico
 fechas_ordenadas = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dropna().sort_values().unique()
