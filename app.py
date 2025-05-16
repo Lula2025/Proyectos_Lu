@@ -95,9 +95,9 @@ st.plotly_chart(fig, use_container_width=True)
 
 # --------- SEGUNDA GRÁFICA: Línea de tiempo alterna con tarjetas ---------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol)")
+st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Conectores)")
 
-# CSS para línea vertical, cuadros, texto y puntos
+# CSS para línea vertical, cuadros, texto y líneas conectores
 st.markdown("""
 <style>
 .timeline-container {
@@ -105,6 +105,7 @@ st.markdown("""
     justify-content: center;
     position: relative;
     margin-bottom: 20px;
+    align-items: center;
 }
 .timeline-line {
     position: absolute;
@@ -132,37 +133,42 @@ st.markdown("""
     color: #444;
     padding: 0 10px;
     width: 180px;
+    position: relative;
+    z-index: 2;
 }
 .timeline-left {
     text-align: right;
     margin-right: 40px;
+    position: relative;
 }
 .timeline-right {
     text-align: left;
     margin-left: 40px;
+    position: relative;
 }
 
-/* Punto conector a la línea central */
-.timeline-point {
-    position: relative;
-    width: 20px;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.timeline-point::before {
+/* Línea horizontal conectora */
+.timeline-left::after, .timeline-right::before {
     content: "";
     position: absolute;
-    width: 14px;
-    height: 14px;
-    background-color: #FF6347;
-    border: 3px solid white;
-    border-radius: 50%;
-    z-index: 4;
+    top: 50%;
+    width: 40px;
+    height: 2px;
+    background-color: #d3d3d3;
+    z-index: 1;
+}
+
+.timeline-left::after {
+    right: -40px;
+}
+.timeline-right::before {
+    left: -40px;
 }
 </style>
 """, unsafe_allow_html=True)
+
+# Mostrar línea vertical
+st.markdown('<div class="timeline-line" style="height: calc(100% - 20px); top: 10px;"></div>', unsafe_allow_html=True)
 
 alternar = True
 for _, row in df_filtrado.iterrows():
@@ -174,14 +180,14 @@ for _, row in df_filtrado.iterrows():
         with col1:
             st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-left"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
         with col2:
-            st.markdown('<div class="timeline-point"></div>', unsafe_allow_html=True)
+            st.markdown('')  # Columna del centro vacía para la línea vertical
         with col3:
             st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-right">{fecha}</div></div>', unsafe_allow_html=True)
     else:
         with col1:
             st.markdown(f'<div class="timeline-container"><div class="timeline-date timeline-left">{fecha}</div></div>', unsafe_allow_html=True)
         with col2:
-            st.markdown('<div class="timeline-point"></div>', unsafe_allow_html=True)
+            st.markdown('')
         with col3:
             st.markdown(f'<div class="timeline-container"><div class="timeline-item timeline-right"><strong>{actividad}</strong></div></div>', unsafe_allow_html=True)
 
