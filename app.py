@@ -7,7 +7,7 @@ import plotly.express as px
 st.set_page_config(page_title="Línea de Tiempo de Actividades", layout="wide")
 st.title("Actividades por Parcela / ID_Cultivo")
 
-# Cargar el archivo
+# Cargar archivo
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
@@ -31,7 +31,7 @@ df_filtrado['Emoji'] = df_filtrado["Actividad_realizada"].map(emoji_actividades)
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
 df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
 
-# --------- PRIMERA GRÁFICA: Plotly timeline ---------
+# -------- PRIMERA GRÁFICA --------
 orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
 
 fig = px.scatter(
@@ -53,11 +53,7 @@ fig.update_layout(
     ),
     xaxis_title="Mes y Año",
     yaxis_title="Actividad",
-    xaxis=dict(
-        tickformat="%b %Y",
-        tickangle=45,
-        dtick="M1"
-    ),
+    xaxis=dict(tickformat="%b %Y", tickangle=45, dtick="M1"),
     margin=dict(l=40, r=40, t=80, b=80),
     height=600,
     width=1200,
@@ -76,105 +72,106 @@ fig.update_traces(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# --------- SEGUNDA GRÁFICA: Línea de tiempo alterna estilo árbol ---------
+# -------- SEGUNDA GRÁFICA (Línea vertical con tarjetas) --------
 st.markdown("---")
-st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Conectores)")
+st.subheader("🌿 Línea de Tiempo Estilo Árbol (Visualización Alterna con Tronco)")
 
-# CSS
+# Estilo CSS para visualización tipo "árbol"
 st.markdown("""
 <style>
-.timeline-wrapper {
+.timeline-container {
     position: relative;
+    margin: 40px auto;
     padding-left: 50px;
     padding-right: 50px;
-    margin-bottom: 40px;
+    width: 100%;
 }
-.timeline-line {
+.timeline-trunk {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 50%;
     width: 4px;
     background-color: #FF6347;
-    border-radius: 2px;
-    transform: translateX(-50%);
     z-index: 0;
 }
-.timeline-row {
+.timeline-event {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin: 30px 0;
     position: relative;
     z-index: 1;
 }
-.timeline-left, .timeline-right {
-    width: 180px;
-    padding: 6px 12px;
+.timeline-card {
+    background-color: #f0f0f0;
+    padding: 10px 16px;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 14px;
-    display: flex;
-    align-items: center;
-}
-.timeline-left {
-    justify-content: flex-end;
-    text-align: right;
-    margin-right: 40px;
-    position: relative;
-    background-color: #f0f0f0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.timeline-right {
-    justify-content: flex-start;
-    text-align: left;
-    margin-left: 40px;
-    position: relative;
-    background-color: #f0f0f0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 220px;
 }
 .timeline-date {
     font-size: 13px;
-    color: #444;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    width: auto !important;
-    margin: 0 !important;
+    color: #333;
+    font-style: italic;
+    background-color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-/* Línea horizontal conectora */
-.timeline-left::after, .timeline-right::before {
+.timeline-left .timeline-card {
+    margin-right: 20px;
+    text-align: right;
+}
+.timeline-right .timeline-card {
+    margin-left: 20px;
+    text-align: left;
+}
+.timeline-left, .timeline-right {
+    display: flex;
+    align-items: center;
+    width: 45%;
+}
+.timeline-date-wrapper {
+    width: 10%;
+    text-align: center;
+}
+.connector-left::after, .connector-right::before {
     content: "";
     position: absolute;
     top: 50%;
     width: 40px;
     height: 2px;
-    background-color: #d3d3d3;
-    z-index: -1;
+    background-color: #ccc;
 }
-.timeline-left::after {
+.connector-left::after {
     right: -40px;
 }
-.timeline-right::before {
+.connector-right::before {
     left: -40px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# HTML dinámico con tarjetas alternas
-st.markdown('<div class="timeline-wrapper">', unsafe_allow_html=True)
-st.markdown('<div class="timeline-line"></div>', unsafe_allow_html=True)
+# Contenedor HTML principal
+st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
+st.markdown('<div class="timeline-trunk"></div>', unsafe_allow_html=True)
 
+# HTML dinámico alternando izquierda/derecha
 for i, row in df_filtrado.iterrows():
     lado = "left" if i % 2 == 0 else "right"
     actividad = f"{row['Emoji']} {row['Actividad_realizada']}"
-    fecha = row['Etiqueta']
+    fecha = row["Etiqueta"]
 
     html = f"""
-    <div class="timeline-row">
-        <div class="timeline-{lado}">
-            <div>{actividad}</div>
+    <div class="timeline-event timeline-{lado}">
+        <div class="timeline-{lado} connector-{lado}">
+            <div class="timeline-card">{actividad}</div>
         </div>
-        <div class="timeline-date">{fecha}</div>
+        <div class="timeline-date-wrapper">
+            <div class="timeline-date">{fecha}</div>
+        </div>
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
