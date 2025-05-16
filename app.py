@@ -123,6 +123,85 @@ fig.update_traces(
 st.plotly_chart(fig, use_container_width=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
+
+#-------------------------
+# Línea de tiempo tipo historia visual (estilo HTML con emojis ya asignados)
+st.markdown("### 🧭 Historia visual de actividades")
+
+# CSS para línea de tiempo vertical alternada
+st.markdown("""
+<style>
+.timeline {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.timeline::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  background-color: #bbb;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -3px;
+}
+.container {
+  padding: 10px 40px;
+  position: relative;
+  background-color: inherit;
+  width: 50%;
+}
+.container.left { left: 0; }
+.container.right { left: 50%; }
+.container::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  right: -10px;
+  background-color: white;
+  border: 4px solid #FF6347;
+  top: 15px;
+  border-radius: 50%;
+  z-index: 1;
+}
+.right::after { left: -10px; }
+.content {
+  padding: 20px;
+  background-color: #f1f1f1;
+  position: relative;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Crear los bloques HTML para cada evento con íconos
+html_eventos = '<div class="timeline">'
+lado = "left"
+for i, row in df_filtrado.iterrows():
+    actividad = row["Actividad_realizada"].replace("_", " ").title()
+    icono = row["Icono_actividad"]
+    fecha = row["Etiqueta"]
+    
+    html_eventos += f'''
+      <div class="container {lado}">
+        <div class="content">
+          <h4>{icono} {fecha}</h4>
+          <p>{actividad}</p>
+        </div>
+      </div>
+    '''
+    lado = "right" if lado == "left" else "left"
+html_eventos += "</div>"
+
+# Mostrar línea de tiempo
+st.markdown(html_eventos, unsafe_allow_html=True)
+
+
+
+
 # ----------------------------
 # TABLA DE INSUMOS
 # ----------------------------
