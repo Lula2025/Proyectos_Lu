@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Configuración inicial
 st.set_page_config(page_title="🌳 Línea de Tiempo de Actividades", layout="wide")
@@ -86,103 +88,49 @@ fig.update_traces(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# -------- SEGUNDA GRÁFICA COMPACTA MEJORADA: Tarjetas tipo mosaico 2.0 --------
+# -------- SEGUNDA GRÁFICA: Mapa Floral --------
 st.markdown("---")
-st.subheader("🌿 Linea de Tiempo")
+st.subheader("🌸 Mapa Floral de Actividades")
 
-# Nuevo estilo CSS
-st.markdown("""
-<style>
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    padding: 10px 5px;
-}
-.grid-card {
-    background: linear-gradient(to top left, #fefefe, #e9f5ec);
-    border-left: 6px solid #8bc34a;
-    border-radius: 10px;
-    padding: 10px 12px;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: all 0.2s ease-in-out;
-}
-.grid-card:hover {
-    transform: scale(1.02);
-    background: linear-gradient(to top left, #ffffff, #d2f8da);
-}
-.grid-emoji {
-    font-size: 36px;
-    margin-bottom: 4px;
-}
-.grid-actividad {
-    font-weight: 600;
-    font-size: 15px;
-    color: #333;
-    text-align: center;
-}
-.grid-fecha {
-    font-size: 13px;
-    color: #555;
-    margin-top: 2px;
-    text-align: center;
-}
-</style>
-""", unsafe_allow_html=True)
+actividades_unicas = df_filtrado["Actividad_realizada"].unique()
+n_actividades = len(actividades_unicas)
+radio_externo = 7
 
-# Contenedor HTML
-st.markdown('<div class="grid-container">', unsafe_allow_html=True)
+fig_flower, ax_flower = plt.subplots(figsize=(8, 8))
+ax_flower.set_facecolor("#f9f9f9")
+
+angle_step = 2 * np.pi / n_actividades
+centros = {}
+
+for i, actividad in enumerate(actividades_unicas):
+    angle = i * angle_step
+    x_centro = radio_externo * np.cos(angle)
+    y_centro = radio_externo * np.sin(angle)
+    centros[actividad] = (x_centro, y_centro)
+
+    emoji = emoji_actividades.get(actividad, "🔄")
+    ax_flower.text(x_centro, y_centro + 0.6, f"{emoji}", fontsize=18, ha='center')
+    ax_flower.text(x_centro, y_centro - 0.2, actividad, fontsize=8, ha='center', wrap=True)
 
 for _, row in df_filtrado.iterrows():
-    actividad = row["Actividad_realizada"]
-    emoji = row["Emoji"]
+    act = row["Actividad_realizada"]
     fecha = row["Etiqueta"]
+    emoji = row["Emoji"]
+    x_c, y_c = centros[act]
 
-    tarjeta_html = f"""
-    <div class="grid-card">
-        <div class="grid-emoji">{emoji}</div>
-        <div class="grid-actividad">{actividad}</div>
-        <div class="grid-fecha">{fecha}</div>
-    </div>
-    """
-    st.markdown(tarjeta_html, unsafe_allow_html=True)
+    angle_offset = np.random.uniform(0, 2 * np.pi)
+    r = np.random.uniform(0.8, 1.5)
+    x_petal = x_c + r * np.cos(angle_offset)
+    y_petal = y_c + r * np.sin(angle_offset)
 
-st.markdown('</div>', unsafe_allow_html=True)
+    ax_flower.plot([x_c, x_petal], [y_c, y_petal], color="#bbb", linestyle="--", linewidth=0.7)
+    ax_flower.plot(x_petal, y_petal, 'o', markersize=8, color="#8bc34a")
+    ax_flower.text(x_petal, y_petal + 0.2, emoji, fontsize=12, ha='center')
+    ax_flower.text(x_petal, y_petal - 0.2, fecha, fontsize=5, ha='center', wrap=True, color="gray")
 
-
-#---------------
-# -------- TERCERA GRÁFICA: Espiral de Actividades --------
-import numpy as np
-import matplotlib.pyplot as plt
-
-st.markdown("---")
-st.subheader("🔄 Espiral de Actividades")
-
-# Generar coordenadas en espiral
-n = len(df_filtrado)
-theta = np.linspace(0, 4 * np.pi, n)
-r = np.linspace(1, 10, n)
-x = r * np.cos(theta)
-y = r * np.sin(theta)
-
-fig_spiral, ax = plt.subplots(figsize=(8, 8))
-ax.set_facecolor('#f9f9f9')
-
-for i, (x_i, y_i, row) in enumerate(zip(x, y, df_filtrado.itertuples())):
-    ax.plot(x_i, y_i, 'o', markersize=10, color="#8bc34a")
-    ax.text(x_i, y_i, f"{row.Emoji}", fontsize=16, ha='center', va='center')
-    ax.text(x_i, y_i - 0.5, f"{row.Actividad_realizada}", fontsize=7, ha='center', va='center')
-    ax.text(x_i, y_i - 1, f"{row.Etiqueta}", fontsize=6, ha='center', va='center', color='gray')
-
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_title(f"🔁 Espiral de Actividades - {id_cultivo_seleccionado}", fontsize=14)
-ax.axis("off")
-st.pyplot(fig_spiral)
-
+ax_flower.set_title(f"🌸 Actividades Agrupadas por Tipo - {id_cultivo_seleccionado}", fontsize=14)
+ax_flower.axis("off")
+st.pyplot(fig_flower)
 # ----------------------------
 # TABLA DE INSUMOS
 # ----------------------------
