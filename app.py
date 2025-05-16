@@ -29,27 +29,10 @@ id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 df_filtrado['Emoji'] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
-
-# --------- PRIMERA GRÁFICA: Plotly timeline ---------
-
-orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
-df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
 df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
 
-# Alternar posiciones de texto
-df_filtrado["Posición_texto"] = "top center"
-posiciones = ["top center", "bottom center"]
-ultima_fecha = None
-posicion_actual = 0
-
-for i, row in df_filtrado.iterrows():
-    fecha_actual = row["Fecha_en_que_se_realizó_la_actividad"]
-    if ultima_fecha and abs((fecha_actual - ultima_fecha).days) <= 2:
-        posicion_actual = (posicion_actual + 1) % 2
-    else:
-        posicion_actual = 0
-    df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
-    ultima_fecha = fecha_actual
+# --------- PRIMERA GRÁFICA: Plotly timeline ---------
+orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
 
 fig = px.scatter(
     df_filtrado,
@@ -85,7 +68,7 @@ fig.update_layout(
 
 fig.update_traces(
     text=df_filtrado["Etiqueta"],
-    textposition=df_filtrado["Posición_texto"],
+    textposition="top center",
     textfont_size=8,
     mode="markers+text",
     marker=dict(size=8, symbol="circle", color="#FF6347")
@@ -93,11 +76,11 @@ fig.update_traces(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# --------- SEGUNDA GRÁFICA: Línea de tiempo alterna con tarjetas ---------
+# --------- SEGUNDA GRÁFICA: Línea de tiempo alterna estilo árbol ---------
 st.markdown("---")
 st.subheader("🌿 Línea de Tiempo Alterna (Estilo Árbol con Conectores)")
 
-# CSS con línea vertical tronco visible y líneas horizontales conectores
+# CSS
 st.markdown("""
 <style>
 .timeline-wrapper {
@@ -121,7 +104,7 @@ st.markdown("""
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     position: relative;
     z-index: 1;
 }
@@ -149,12 +132,9 @@ st.markdown("""
     background-color: #f0f0f0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-/* Para que las fechas no tengan fondo ni sombra: */
 .timeline-date {
     font-size: 13px;
     color: #444;
-    display: flex;
-    align-items: center;
     background-color: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
@@ -180,31 +160,26 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Construcción del HTML para la línea de tiempo alterna con tarjetas
-html_timeline = '<div class="timeline-wrapper">'
-html_timeline += '<div class="timeline-line"></div>'
+# HTML dinámico con tarjetas alternas
+st.markdown('<div class="timeline-wrapper">', unsafe_allow_html=True)
+st.markdown('<div class="timeline-line"></div>', unsafe_allow_html=True)
 
 for i, row in df_filtrado.iterrows():
+    lado = "left" if i % 2 == 0 else "right"
     actividad = f"{row['Emoji']} {row['Actividad_realizada']}"
-    fecha = row['Fecha_en_que_se_realizó_la_actividad'].strftime("%d %B %Y")
-    if i % 2 == 0:  # lado izquierdo
-        html_timeline += f'''
-        <div class="timeline-row">
-            <div class="timeline-left">{actividad}</div>
-            <div class="timeline-date">{fecha}</div>
-        </div>
-        '''
-    else:  # lado derecho
-        html_timeline += f'''
-        <div class="timeline-row">
-            <div class="timeline-date">{fecha}</div>
-            <div class="timeline-right">{actividad}</div>
-        </div>
-        '''
+    fecha = row['Etiqueta']
 
-html_timeline += '</div>'
+    html = f"""
+    <div class="timeline-row">
+        <div class="timeline-{lado}">
+            <div>{actividad}</div>
+        </div>
+        <div class="timeline-date">{fecha}</div>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
 
-st.markdown(html_timeline, unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 
