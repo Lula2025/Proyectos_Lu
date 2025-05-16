@@ -2,14 +2,12 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
-import matplotlib.pyplot as plt
-import numpy as np
 
 # Configuración inicial
-st.set_page_config(page_title="🌳 Línea de Tiempo de Actividades", layout="wide")
-st.title("🌱 Actividades por Parcela / ID_Cultivo")
+st.set_page_config(page_title="🪜 Escalera de Actividades", layout="wide")
+st.title("🪜 Escalera de Actividades Agrícolas")
 
-# Cargar archivo
+# Cargar datos
 df = pd.read_csv("6_2023_2024_a_marzo_2025.csv")
 df['Fecha_en_que_se_realizó_la_actividad'] = pd.to_datetime(df['Fecha_en_que_se_realizó_la_actividad'], errors='coerce')
 
@@ -26,111 +24,93 @@ emoji_actividades = {
     "TRILLA": "🌽"
 }
 
-# Filtro de ID_Cultivo
+# Filtro por ID_Cultivo
 id_cultivo_seleccionado = st.selectbox("✅ Selecciona un ID de Cultivo", df['ID_Cultivo'].dropna().unique())
 df_filtrado = df[df['ID_Cultivo'] == id_cultivo_seleccionado].copy()
 df_filtrado = df_filtrado.sort_values("Fecha_en_que_se_realizó_la_actividad").reset_index(drop=True)
+
+# Preparar columnas necesarias
 df_filtrado["Emoji"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
-df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %B %Y")
+df_filtrado["Etiqueta"] = df_filtrado["Fecha_en_que_se_realizó_la_actividad"].dt.strftime("%d %b %Y")
 
-# -------- PRIMERA GRÁFICA: Plotly timeline --------
-orden_actividades = df_filtrado["Actividad_realizada"].unique()[::-1]
-df_filtrado["Icono_actividad"] = df_filtrado["Actividad_realizada"].map(emoji_actividades).fillna("🔄")
-df_filtrado["Posición_texto"] = "top center"
-posiciones = ["top center", "bottom center"]
-ultima_fecha = None
-posicion_actual = 0
+# Alternar la posición en escalera (arriba/abajo)
+df_filtrado["Escalon"] = df_filtrado.index % 2
 
-for i, row in df_filtrado.iterrows():
-    fecha_actual = row["Fecha_en_que_se_realizó_la_actividad"]
-    if ultima_fecha and abs((fecha_actual - ultima_fecha).days) <= 2:
-        posicion_actual = (posicion_actual + 1) % 2
-    else:
-        posicion_actual = 0
-    df_filtrado.at[i, "Posición_texto"] = posiciones[posicion_actual]
-    ultima_fecha = fecha_actual
-
-fig = px.scatter(
-    df_filtrado,
-    x="Fecha_en_que_se_realizó_la_actividad",
-    y="Actividad_realizada",
-    category_orders={"Actividad_realizada": orden_actividades},
-    title=f"🗓️ Línea de Tiempo de Actividades por Cultivo {id_cultivo_seleccionado}",
-    labels={"Fecha_en_que_se_realizó_la_actividad": "Fecha"},
-    color_discrete_sequence=["#FF6347"],
-    hover_data={"Actividad_realizada": False, "Fecha_en_que_se_realizó_la_actividad": True},
-)
-
-fig.update_layout(
-    yaxis=dict(
-        tickmode="array",
-        tickvals=orden_actividades,
-        ticktext=[f"{emoji_actividades.get(act, '🔄')} {act}" for act in orden_actividades],
-    ),
-    xaxis_title="Mes y Año",
-    yaxis_title="Actividad",
-    xaxis=dict(tickformat="%b %Y", tickangle=45, dtick="M1"),
-    margin=dict(l=40, r=40, t=80, b=80),
-    height=600,
-    width=1200,
-    title_font_size=24,
-    font=dict(size=12, family="Arial, sans-serif"),
-    plot_bgcolor="#F9F9F9"
-)
-
-fig.update_traces(
-    text=df_filtrado["Etiqueta"],
-    textposition=df_filtrado["Posición_texto"],
-    textfont_size=8,
-    mode="markers+text",
-    marker=dict(size=8, symbol="circle", color="#FF6347")
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# -------- SEGUNDA GRÁFICA: Mapa Floral --------
+# Dibujar escalera
 st.markdown("---")
-st.subheader("🌸 Mapa Floral de Actividades")
+st.subheader("🪜 Escalera de Actividades")
 
-actividades_unicas = df_filtrado["Actividad_realizada"].unique()
-n_actividades = len(actividades_unicas)
-radio_externo = 7
+# CSS personalizado para la escalera
+st.markdown("""
+<style>
+.escalera-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 auto;
+    width: 90%;
+}
+.peldaño {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 30px;
+    position: relative;
+}
+.actividad {
+    background-color: #e8f5e9;
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 150px;
+}
+.fecha {
+    font-size: 13px;
+    color: #666;
+    padding: 8px;
+}
+.linea-conector {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #ccc;
+    z-index: -1;
+}
+</style>
+<div class="escalera-container">
+""", unsafe_allow_html=True)
 
-fig_flower, ax_flower = plt.subplots(figsize=(8, 8))
-ax_flower.set_facecolor("#f9f9f9")
-
-angle_step = 2 * np.pi / n_actividades
-centros = {}
-
-for i, actividad in enumerate(actividades_unicas):
-    angle = i * angle_step
-    x_centro = radio_externo * np.cos(angle)
-    y_centro = radio_externo * np.sin(angle)
-    centros[actividad] = (x_centro, y_centro)
-
-    emoji = emoji_actividades.get(actividad, "🔄")
-    ax_flower.text(x_centro, y_centro + 0.6, f"{emoji}", fontsize=18, ha='center')
-    ax_flower.text(x_centro, y_centro - 0.2, actividad, fontsize=8, ha='center', wrap=True)
-
-for _, row in df_filtrado.iterrows():
-    act = row["Actividad_realizada"]
-    fecha = row["Etiqueta"]
+# Generar peldaños
+for i, row in df_filtrado.iterrows():
+    lado_izq = (i % 2 == 0)
     emoji = row["Emoji"]
-    x_c, y_c = centros[act]
+    actividad = row["Actividad_realizada"]
+    fecha = row["Etiqueta"]
 
-    angle_offset = np.random.uniform(0, 2 * np.pi)
-    r = np.random.uniform(0.8, 1.5)
-    x_petal = x_c + r * np.cos(angle_offset)
-    y_petal = y_c + r * np.sin(angle_offset)
+    if lado_izq:
+        html = f"""
+        <div class="peldaño">
+            <div class="actividad">{emoji} {actividad}</div>
+            <div class="linea-conector"></div>
+            <div class="fecha">{fecha}</div>
+        </div>
+        """
+    else:
+        html = f"""
+        <div class="peldaño">
+            <div class="fecha">{fecha}</div>
+            <div class="linea-conector"></div>
+            <div class="actividad">{emoji} {actividad}</div>
+        </div>
+        """
+    st.markdown(html, unsafe_allow_html=True)
 
-    ax_flower.plot([x_c, x_petal], [y_c, y_petal], color="#bbb", linestyle="--", linewidth=0.7)
-    ax_flower.plot(x_petal, y_petal, 'o', markersize=8, color="#8bc34a")
-    ax_flower.text(x_petal, y_petal + 0.2, emoji, fontsize=12, ha='center')
-    ax_flower.text(x_petal, y_petal - 0.2, fecha, fontsize=5, ha='center', wrap=True, color="gray")
-
-ax_flower.set_title(f"🌸 Actividades Agrupadas por Tipo - {id_cultivo_seleccionado}", fontsize=14)
-ax_flower.axis("off")
-st.pyplot(fig_flower)
+st.markdown("</div>", unsafe_allow_html=True)
 # ----------------------------
 # TABLA DE INSUMOS
 # ----------------------------
