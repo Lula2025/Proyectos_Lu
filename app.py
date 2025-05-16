@@ -225,28 +225,25 @@ st.markdown("""
     align-items: center;
     margin-bottom: 12px;
     gap: 8px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    color: #555;
-}
-.timeline-header .arrow {
-    font-size: 22px;
     color: #FF6347;
 }
-.timeline-header .dot {
-    width: 14px;
-    height: 14px;
-    background-color: #FF6347;
-    border-radius: 50%;
+.timeline-header .arrow {
+    font-size: 28px;
+    color: #FF6347;
+    animation: moveArrow 1.5s infinite alternate;
+}
+@keyframes moveArrow {
+    0% { opacity: 0.4; transform: translateX(0); }
+    100% { opacity: 1; transform: translateX(8px); }
 }
 </style>
 <div class="timeline-header">
-    <div class="arrow">⬅️</div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="arrow">➡️</div>
+    <div>Fechas →</div>
+    <div class="arrow">→</div>
+    <div class="arrow">→</div>
+    <div class="arrow">→</div>
 </div>
 """, unsafe_allow_html=True)
 
