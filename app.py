@@ -181,6 +181,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+# --- Aquí insertas este bloque para la línea de tiempo ---
+html_timeline = '<div class="timeline-wrapper">'
+html_timeline += '<div class="timeline-line"></div>'
+
+for i, row in df_filtrado.iterrows():
+    actividad = f"{row['Emoji']} {row['Actividad_realizada']}"
+    fecha = row['Fecha_en_que_se_realizó_la_actividad'].strftime("%d %B %Y")
+    if i % 2 == 0:  # izquierda
+        html_timeline += f'''
+        <div class="timeline-row">
+            <div class="timeline-left">{actividad}</div>
+            <div class="timeline-date">{fecha}</div>
+        </div>
+        '''
+    else:  # derecha
+        html_timeline += f'''
+        <div class="timeline-row">
+            <div class="timeline-date">{fecha}</div>
+            <div class="timeline-right">{actividad}</div>
+        </div>
+        '''
+
+html_timeline += '</div>'
+
+st.markdown(html_timeline, unsafe_allow_html=True)
+
+
 
 # ----------------------------
 # TABLA DE INSUMOS
